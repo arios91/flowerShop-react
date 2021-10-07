@@ -7,6 +7,7 @@ import Dashboard from './components/dashboard/Dashboard';
 import './App.css';
 import {Provider} from 'react-redux'
 import store from './Store'
+import Arrangements from './components/arrangements/Arrangements';
 
 function App() {
   return (

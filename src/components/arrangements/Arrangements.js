@@ -1,15 +1,54 @@
-import React, { Component } from 'react'
+import React from 'react'
+import useFirestore from '../../hooks/useFirestore';
+import ReactPaginate from 'react-paginate';
 
-class Arrangements extends Component{
-    render() {
-        return (
-            <div>
-                <p>Hello from Arrangements</p>
-            </div>
-        )
-    }
+const Arrangements = () => {
+    const itemsPerPage = 10;
+    let arrangements = [];
+    const {docs} = useFirestore('arrangements');
+    console.log(docs);
 
+    
+    let pageCounter = 0;
+    let itemCounter = 0;
+    docs.forEach(doc => {
+        if(itemCounter == itemsPerPage){
+            pageCounter++;
+            itemCounter = 0;
+        }
+        if(itemCounter == 0){
+            let tmpArr = [];
+            arrangements.push(tmpArr);
+        }
+        
+        arrangements[pageCounter].push(doc);
+        itemCounter++;
+    })
+
+    console.log(arrangements)
+
+    return (
+        <div>
+            Test
+        </div>
+    )
 }
 
 
 export default Arrangements;
+/*
+<div className='container'>
+            <div className="row">
+                <div className="col">Sort</div>
+                <div className="col">Filter</div>
+            </div>
+            <div className="row">
+                <div className="col">Pagination</div>
+            </div>
+            {items}
+            <div className="row">
+                <div className="col">
+                    <p>Test1</p>
+                </div>
+            </div>
+        </div>*/
