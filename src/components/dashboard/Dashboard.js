@@ -11,6 +11,9 @@ class Dashboard extends Component {
             {label:'Most Popular', name: 'popular'},
             {label:'Price: High to Low', name: 'high'},
             {label:'Price: Low to High', name: 'low'},
+        ],
+        categories: [
+            
         ]
     }
 
@@ -45,7 +48,9 @@ class Dashboard extends Component {
 
                             <div className="col-12 col-lg-6 row">
                                 <div className="col-5 col-lg-2">Filter By:</div>
-                                <div className="col-7 col-lg-4">Filters</div>
+                                <div className="col-7 col-lg-4">
+
+                                </div>
                             </div>
                         </div>
 
