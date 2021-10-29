@@ -16,13 +16,21 @@ const App = () => {
   const [cartItems, setCartItems] = useState([]);
   const [testContext, setTestContext] = useState([]);
   const {arrangements} = useFirestore('arrangements');
-  
-  
+
+  let testFunc = (item) => {
+    console.log('test func')
+    if(item){
+      console.log(item);
+      setCartItems([item, ...cartItems]);
+      console.log('set');
+      console.log(cartItems)
+    }
+  }
 
 
  
   return (
-    <MyContext.Provider value={{testContext, setTestContext, arrangements}}>
+    <MyContext.Provider value={{testContext, cartItems, arrangements, testFunc}}>
       <Router>
         <div className="App">
           <Header/>

@@ -7,10 +7,10 @@ import Loading from '../Loading';
 
 
 const Dashboard = () => {
+    const [tmpValue, setTmpValue] = useState('');
     const [sortList, setSortList] = useState([]);
     const [currentSort, setCurrentSort] = useState([]);
-    const {setTestContext, arrangements} = useContext(MyContext);
-    console.log(arrangements)
+    const {setTestContext, arrangements, testFunc} = useContext(MyContext);
 
 
 
@@ -39,8 +39,17 @@ const Dashboard = () => {
     }
 
     */
+   let myOnChange = (e) => {
+       setTmpValue(e.target.value)
+   }
    let testClick = () => {
-       console.log('clicked');
+    if(tmpValue){
+        console.log(`send ${tmpValue}`)
+        testFunc(tmpValue);
+        setTmpValue('');
+    }else{
+        console.log('nothing to send')
+    }
    }
 
 
@@ -73,11 +82,9 @@ const Dashboard = () => {
                     <div className="row text-center">
                         <input
                             type="text"
-                            onChange={(e) => {setTestContext(e.target.value)}}/>
+                            value={tmpValue}
+                            onChange={(e) => {myOnChange(e)}}/>
                         <button onClick={testClick}>Click</button>
-
-                        
-                        
                     </div>
                 </div>
             </div>

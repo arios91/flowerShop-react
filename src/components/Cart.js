@@ -5,11 +5,20 @@ import { MyContext } from '../Contexts/MyContext';
 
 const Cart = () => {
     const {} = useContext
-    const {testContext} = useContext(MyContext);
+    const {cartItems} = useContext(MyContext);
+    console.log('hi from cart')
+    console.log(cartItems);
 
     return (
         <div>
-            {testContext}
+            {!cartItems || cartItems.length == 0 ? 
+            <div>no items in your cart</div>
+            :
+            <div>
+                {cartItems}
+            </div>
+            
+            }
         </div>
     )
 }
