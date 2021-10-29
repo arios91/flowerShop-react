@@ -14,23 +14,19 @@ import Loading from './components/Loading'
 
 const App = () => {
   const [cartItems, setCartItems] = useState([]);
-  const [testContext, setTestContext] = useState([]);
   const {arrangements} = useFirestore('arrangements');
 
-  let testFunc = (item) => {
-    console.log('test func')
+  let addToCart = (item) => {
+    //if no item, alert somehow
     if(item){
-      console.log(item);
-      setCartItems([item, ...cartItems]);
-      console.log('set');
-      console.log(cartItems)
+      setCartItems([item, ...cartItems]);      
     }
   }
 
 
  
   return (
-    <MyContext.Provider value={{testContext, cartItems, arrangements, testFunc}}>
+    <MyContext.Provider value={{cartItems, arrangements, addToCart}}>
       <Router>
         <div className="App">
           <Header/>

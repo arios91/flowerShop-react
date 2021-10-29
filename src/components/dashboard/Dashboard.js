@@ -10,42 +10,16 @@ const Dashboard = () => {
     const [tmpValue, setTmpValue] = useState('');
     const [sortList, setSortList] = useState([]);
     const [currentSort, setCurrentSort] = useState([]);
-    const {setTestContext, arrangements, testFunc} = useContext(MyContext);
+    const {arrangements, addToCart} = useContext(MyContext);
 
 
-
-    /*
-    state = {
-        setNavbarOpaque: false,
-        currentSort: {label:'Newest', name: 'new'},
-        sortlist: [
-            {label:'Newest', name: 'new'},
-            {label:'Most Popular', name: 'popular'},
-            {label:'Price: High to Low', name: 'high'},
-            {label:'Price: Low to High', name: 'low'},
-        ],
-        categories: [
-            
-        ]
-    }
-
-    changeNavClass = (inIntro) => {
-        this.setState({setNavbarOpaque: !inIntro});
-    }
-
-    onSortChange = (value) => {
-        let newCurrent = this.state.sortlist.filter(sort => sort.name == value[0].name);
-        this.setState({currentSort: newCurrent[0]});
-    }
-
-    */
    let myOnChange = (e) => {
        setTmpValue(e.target.value)
    }
    let testClick = () => {
     if(tmpValue){
         console.log(`send ${tmpValue}`)
-        testFunc(tmpValue);
+        addToCart(tmpValue);
         setTmpValue('');
     }else{
         console.log('nothing to send')
