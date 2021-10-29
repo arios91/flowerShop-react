@@ -1,8 +1,20 @@
-import React, { Component } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import Arrangements from '../arrangements/Arrangements'
 import Select from "react-dropdown-select";
+import PropTypes from 'prop-types';
+import {MyContext} from '../../Contexts/MyContext'
+import Loading from '../Loading';
 
-class Dashboard extends Component {
+
+const Dashboard = () => {
+    const [sortList, setSortList] = useState([]);
+    const [currentSort, setCurrentSort] = useState([]);
+    const {setTestContext, arrangements} = useContext(MyContext);
+    console.log(arrangements)
+
+
+
+    /*
     state = {
         setNavbarOpaque: false,
         currentSort: {label:'Newest', name: 'new'},
@@ -26,45 +38,53 @@ class Dashboard extends Component {
         this.setState({currentSort: newCurrent[0]});
     }
 
-    render() {
-        let {sortlist, currentSort} = this.state;
-        return (
-            <div id="dash"  className="container">
-                <div className="row">
-                    <div className="col-12 p-0">
-                        <img className="mainImage" src="https://images.pexels.com/photos/428611/bouquet-roses-colorful-floral-428611.jpeg?w=1260&h=750&auto=compress&cs=tinysrgb" alt="" />
+    */
+   let testClick = () => {
+       console.log('clicked');
+   }
+
+
+    return (
+        <div id="dash"  className="container">
+            {!arrangements || arrangements.length == 0 ? <Loading></Loading>:
+            <div className="row">
+                <div className="col-12 p-0">
+                    <img className="mainImage" src="https://images.pexels.com/photos/428611/bouquet-roses-colorful-floral-428611.jpeg?w=1260&h=750&auto=compress&cs=tinysrgb" alt="" />
+                </div>
+                <div className="col-12">
+                    <div className="row">
+
+                        <div className="col-12 col-lg-6 row">
+                            <div className="col-5 col-lg-2">
+                                Sort By: 
+                            </div>
+                            <div className="col-7 col-lg-4">
+                                
+                            </div>
+                        </div>
+
+                        <div className="col-12 col-lg-6 row">
+                            <div className="col-5 col-lg-2">Filter By:</div>
+                            <div className="col-7 col-lg-4">
+
+                            </div>
+                        </div>
                     </div>
-                    <div className="col-12">
-                        <div className="row">
+                    <div className="row text-center">
+                        <input
+                            type="text"
+                            onChange={(e) => {setTestContext(e.target.value)}}/>
+                        <button onClick={testClick}>Click</button>
 
-                            <div className="col-12 col-lg-6 row">
-                                <div className="col-5 col-lg-2">
-                                    Sort By: 
-                                </div>
-                                <div className="col-7 col-lg-4">
-                                    <Select options={sortlist} placeholder={currentSort.label} onChange={(values) => this.onSortChange(values)} />
-                                </div>
-                            </div>
-
-                            <div className="col-12 col-lg-6 row">
-                                <div className="col-5 col-lg-2">Filter By:</div>
-                                <div className="col-7 col-lg-4">
-
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="row">
-                            <div className="col-12 text-center">Pagination</div>
-                        </div>
-                        <div className="row text-center">
-                            <div className="col-12">Arrangements</div>
-                        </div>
+                        
+                        
                     </div>
                 </div>
             </div>
-        )
-    }
+            }
+        </div>
+    )
+    
 }
 
 export default Dashboard;

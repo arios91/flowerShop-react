@@ -1,9 +1,11 @@
 import React from 'react'
 
-export default function Cart() {
+function Loading() {
     return (
         <div>
-            Hi From Cart
+            Loading
         </div>
     )
 }
+
+export default Loading

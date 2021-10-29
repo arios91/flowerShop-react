@@ -1,30 +1,42 @@
 import {BrowserRouter as Router, Route, Switch} from 'react-router-dom'; 
-import Test from './components/Test';
-import Footer from './components/footer/Footer';
-import Header from './components/header/Header';
-import Cart from './components/cart/Cart';
+import Footer from './components/Footer';
+import Header from './components/Header';
+import Cart from './components/Cart';
 import Dashboard from './components/dashboard/Dashboard';
 import './App.css';
-import {Provider} from 'react-redux'
-import store from './Store'
 import Arrangements from './components/arrangements/Arrangements';
+import useFirestore from './hooks/useFirestore';
+import { useState, useEffect } from 'react';
+import PropTypes from 'prop-types';
+import PropsRoute from './components/PropsRoute';
+import {MyContext} from './Contexts/MyContext'
+import Loading from './components/Loading'
 
-function App() {
+const App = () => {
+  const [cartItems, setCartItems] = useState([]);
+  const [testContext, setTestContext] = useState([]);
+  const {arrangements} = useFirestore('arrangements');
+  
+  
+
+
+ 
   return (
-    <Provider store={store}>
-
+    <MyContext.Provider value={{testContext, setTestContext, arrangements}}>
       <Router>
         <div className="App">
           <Header/>
+          
           <Switch>
-            <Route exact path="/" component={Dashboard}/>
-            <Route exact path="/cart" component={Cart}/>
+            <PropsRoute exact path="/" component={Dashboard}/>
+            <PropsRoute exact path="/cart" component={Cart}/>
           </Switch>
           <Footer/>
         </div>
       </Router>
-    </Provider>
+    </MyContext.Provider>
   );
 }
+
 
 export default App;

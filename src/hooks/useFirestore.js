@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { projectFirestore } from '../firebase';
 
 const useFirestore = (col) => {
-  const [docs, setDocs] = useState([]);
+  const [arrangements, setDocs] = useState([]);
 
   useEffect(() => {
     /* const unsub = projectFirestore.collection(collection)
@@ -30,7 +30,7 @@ const useFirestore = (col) => {
     // a component using the hook unmounts
   }, [col]);
 
-  return { docs };
+  return { arrangements };
 }
 
 export default useFirestore;

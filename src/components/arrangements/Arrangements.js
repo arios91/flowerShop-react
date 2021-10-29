@@ -27,6 +27,7 @@ const Arrangements = () => {
 
     console.log(arrangements)
 
+
     return (
         <div>
             Test
@@ -36,19 +37,3 @@ const Arrangements = () => {
 
 
 export default Arrangements;
-/*
-<div className='container'>
-            <div className="row">
-                <div className="col">Sort</div>
-                <div className="col">Filter</div>
-            </div>
-            <div className="row">
-                <div className="col">Pagination</div>
-            </div>
-            {items}
-            <div className="row">
-                <div className="col">
-                    <p>Test1</p>
-                </div>
-            </div>
-        </div>*/
