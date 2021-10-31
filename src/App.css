@@ -19,3 +19,57 @@
     width: 100%;
     height: 450px;
 }
+
+.pagination{
+    display: flex;
+    text-align: center;
+    justify-content: center;
+    margin-bottom: 0;
+}
+
+.pageItem{
+    cursor: pointer;
+}
+
+.pageItem:active{
+    z-index: 2;
+    color: #fff;
+    background-color: #007bff;
+    border-color: #007bff;
+}
+
+.pageLink{
+    padding: 0rem 0.75rem;
+    line-height: 1.25;
+    color: #007bff;
+    background-color: #fff;
+    border: 1px solid #ddd;
+}
+
+
+.pageLink:focus, .pageLink:hover{
+    color: #0056b3 !important;
+    background-color: #e9ecef !important;
+    border-color: #dddc !important;
+}
+
+
+.sortContainer{
+    justify-content: left;
+}
+
+.filterContainer{
+    justify-content: right;
+}
+
+.arrangementTitle{
+
+}
+
+.arrangementPrice{
+
+}
+
+.viewButton{
+    width: 75%;
+}
