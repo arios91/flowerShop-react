@@ -17,7 +17,12 @@ const ViewArrangement = () => {
     }
 
     let itemAddons = addons.filter(addon => currentArrangement.addonNames.includes(addon.name));
+    console.log(itemAddons);
     addonContainerClass += ' col-' + (12 / itemAddons.length);
+
+    let addonClick = name => {
+        console.log('click');
+    }
 
     
 
@@ -51,6 +56,8 @@ const ViewArrangement = () => {
                                         </div>
                                         <div className="card-body">
                                             <span>{item.description}</span>
+                                            <a name={item.name} className="btn btn-outline-primary" onClick>Add</a>
+                                            <a name={item.name} className="btn btn-outline-danger" onClick>Remove</a>
                                         </div>
                                     </div>
                                 ))}
