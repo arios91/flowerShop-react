@@ -3,26 +3,51 @@ import { useState, useEffect } from 'react';
 import { projectFirestore } from '../firebase';
 
 const useFirestore = (col) => {
-  const [arrangements, setDocs] = useState([]);
+  const [arrangementPages, setArrangements] = useState([]);
+  const [addons, setAddons] = useState([]);
+  const itemsPerPage = 12;
+
+  let setDocs = (documents, col) => {
+    if(col === 'addons'){
+      setAddons(documents);
+    }else if(col === 'arrangements'){
+      setArrangements(documents);
+    }
+  }
 
   useEffect(() => {
-    /* const unsub = projectFirestore.collection(collection)
-      .orderBy('title', 'desc')
-      .onSnapshot(snap => {
-        let documents = [];
-        snap.forEach(doc => {
-          documents.push({...doc.data(), id: doc.id});
-        });
-        setDocs(documents);
-      }); */
-
+ 
       const q = query(collection(projectFirestore, col));
-      const unsub = onSnapshot(q, (snap) => {
+
+      /* const unsub = onSnapshot(q, (snap) => {
           let documents = [];
           snap.forEach(doc => {
             documents.push({...doc.data(), id: doc.id});
           });
-          setDocs(documents);
+          setDocs(documents); */
+      const unsub = onSnapshot(q, (snap) => {
+        let documents = [];
+        if(col === 'addons'){
+          snap.forEach(doc => {
+            documents.push({...doc.data(), id: doc.id});
+          })
+
+        }else if(col === 'arrangements'){
+          let counter = 0;
+          let page = [];
+          snap.forEach(doc => {
+            if(counter == itemsPerPage){
+              documents.push(page);
+              page = [];
+              counter =0;
+            }else{
+              page.push({...doc.data(), id: doc.id});
+              counter++
+            }
+          });
+
+        }
+        setDocs(documents, col);
     })
 
     return () => unsub();
@@ -30,23 +55,7 @@ const useFirestore = (col) => {
     // a component using the hook unmounts
   }, [col]);
 
-  return { arrangements };
+  return { arrangementPages, addons };
 }
 
 export default useFirestore;
-
-/* 
-const unsub = onSnapshot(q, (snapshot) => {
-    snapshot.docChanges().forEach(change  =>  {
-        if (change.type === "added") {
-            console.log("New: ", change.doc.data());
-        }
-        if (change.type === "modified") {
-            console.log("Modified: ", change.doc.data());
-
-        }
-        if (change.type === "removed") {
-            console.log("Removed: ", change.doc.data());
-        }
-    })
-}) */

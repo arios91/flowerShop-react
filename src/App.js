@@ -15,13 +15,14 @@ import ViewArrangement from './components/ViewArrangement';
 
 const App = () => {
   const [cartItems, setCartItems] = useState([]);
-  const [arrangementPages, setArrangementPages] = useState([]);
+  //const [arrangementPages, setArrangementPages] = useState([]);
   const [currentPage , setCurrentPage] = useState(0);
   const [currentArrangement, setCurrentArrangement] = useState({});
-  const {arrangements} = useFirestore('arrangements');
+  const {arrangementPages} = useFirestore('arrangements')
+  const {addons} = useFirestore('addons')
 
 
-  if(arrangementPages.length == 0 && arrangements.length > 0){
+  /* if(arrangementPages.length == 0 && arrangements.length > 0){
     let counter = 0, arrX = 0, itemsPerPage = 12;
     let tmpPages = [], page = [];
     arrangements.forEach(item => {
@@ -36,7 +37,7 @@ const App = () => {
       }
     })
     setArrangementPages(tmpPages);
-  }
+  } */
 
   let addToCart = (item) => {
     //if no item, alert somehow
@@ -50,7 +51,7 @@ const App = () => {
 
  
   return (
-    <MyContext.Provider value={{cartItems, arrangements, addToCart, arrangementPages, currentPage, setCurrentPage, currentArrangement, setCurrentArrangement}}>
+    <MyContext.Provider value={{cartItems, addToCart, arrangementPages, currentPage, setCurrentPage, currentArrangement, setCurrentArrangement, addons}}>
       <Router>
         <div className="App">
           <Header/>
