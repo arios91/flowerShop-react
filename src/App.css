@@ -73,3 +73,16 @@
 .viewButton{
     width: 75%;
 }
+
+.addonContainer{
+    min-height: 230px;
+    padding: 0;
+}
+
+.addonDescription{
+    padding: .25rem;
+    bottom: 0;
+    left: 0;
+    text-align: center;
+    width: 100%;
+}
