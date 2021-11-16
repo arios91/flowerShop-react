@@ -2,17 +2,18 @@ import React, { Fragment } from 'react'
 import {useContext, useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import {MyContext} from '../Contexts/MyContext';
-import { useHistory, browserHistory, Redirect   } from 'react-router-dom';
+import { Redirect } from 'react-router-dom';
+import Currency from 'react-currency-formatter';
 import Modal from 'react-modal';
 
 const ViewArrangement = () => {
     const {currentArrangement, addons, addToCart} = useContext(MyContext);
     const [itemAddons, setItemAddons] = useState([])
     const [redirect,  setRedirect] = useState(false);
+    const [totalPrice, setTotalPrice] = useState(0);
 
     let [isModalOpen, setModalOpen] = useState(false);
     let addonContainerClass = 'imageContainer';
-    let totalPrice = 0;
 
     let goHome = () => {
         console.log('going home')
@@ -30,6 +31,7 @@ const ViewArrangement = () => {
         }else{
             console.log(currentArrangement);
             console.log(addons)
+            setTotalPrice(currentArrangement.price);
             if(currentArrangement.addonNames && currentArrangement.addonNames.length > 0){
                 console.log('setting addons');
                 let tmpAddons = addons.filter(addon => currentArrangement.addonNames.includes(addon.name));
@@ -61,11 +63,14 @@ const ViewArrangement = () => {
             }
             return item;
         }));
+
+        console.log(itemAddons)
     }
 
     let toCart = (e) => {
         e.preventDefault();
-        let itemToAdd = {...currentArrangement, productAddons : itemAddons.filter(addon => addon.inCart)};
+        let productAddons = itemAddons.filter(addon => addon.inCart);
+        let itemToAdd = {...currentArrangement, productAddons : productAddons};
         addToCart(itemToAdd);
         setModalOpen(true);
     }
@@ -94,7 +99,7 @@ const ViewArrangement = () => {
                 <div className="col-12 col-lg-6 p-0">
                     <div className="card">
                         <div className="card-body">
-                            <h1>{currentArrangement.name}</h1> <h4>{totalPrice}</h4>
+                            <h1>{currentArrangement.name}</h1> <h4><Currency quantity={totalPrice} currency="USD"/></h4>
                             <span>{currentArrangement.longDescription}</span>
                             {itemAddons.length > 0 ? 
                                 <Fragment>

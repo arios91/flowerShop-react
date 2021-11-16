@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { Fragment } from 'react';
 import {Link} from 'react-router-dom'
 import { MyContext } from '../Contexts/MyContext';
+import Currency from 'react-currency-formatter';
 
 
 const Arrangement = ({item}) => {
@@ -18,7 +19,7 @@ const Arrangement = ({item}) => {
             <img src={item.imageUrl} alt="arrangement image" />
             <div className="card-body text-center">
                 <p className="arrangementTitle mb-0">{item.name}</p>
-                <p className="arrangementPrice mb-2">${item.price}</p>
+                <p className="arrangementPrice mb-2"><Currency quantity={item.price} currency="USD"/></p>
                 <Link className="btn btn-sm btn-outline-secondary viewButton" to="/viewProduct" onClick={(e => {onTestClick(e)})}>View</Link>
             </div>
         </div>
