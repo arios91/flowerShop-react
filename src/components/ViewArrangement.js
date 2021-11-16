@@ -11,29 +11,17 @@ const ViewArrangement = () => {
     const [itemAddons, setItemAddons] = useState([])
     const [redirect,  setRedirect] = useState(false);
     const [totalPrice, setTotalPrice] = useState(0);
+    const [orderedBalloons, setOrderedBallons] = useState(false);
 
     let [isModalOpen, setModalOpen] = useState(false);
     let addonContainerClass = 'imageContainer';
 
-    let goHome = () => {
-        console.log('going home')
-        return <Redirect to='/'/>
-    }
-
-
     useEffect(() => {
-        
-        console.log('hi from view arrangement');
-        console.log('hi from useEffect');
         if(!currentArrangement.name){
-            console.log('nothing to display');
             setRedirect(true);
         }else{
-            console.log(currentArrangement);
-            console.log(addons)
             setTotalPrice(currentArrangement.price);
             if(currentArrangement.addonNames && currentArrangement.addonNames.length > 0){
-                console.log('setting addons');
                 let tmpAddons = addons.filter(addon => currentArrangement.addonNames.includes(addon.name));
     
                 tmpAddons = tmpAddons.map(addon => {
@@ -51,7 +39,6 @@ const ViewArrangement = () => {
 
 
     if(redirect){
-        console.log('redirecting');
         return <Redirect to='/'/>
     }
 
@@ -59,18 +46,26 @@ const ViewArrangement = () => {
     let toggleAddon = e => {
         setItemAddons(itemAddons.map(item => {
             if(item.name == e.target.name){
+                if(item.inCart){
+                    setTotalPrice(totalPrice - item.price);
+                }else{
+                    setTotalPrice(totalPrice + item.price);
+                }
+
+                if(item.name === 'balloon'){
+                    setOrderedBallons(!orderedBalloons);
+                }
+
                 item.inCart = !item.inCart;
             }
             return item;
         }));
-
-        console.log(itemAddons)
     }
 
     let toCart = (e) => {
         e.preventDefault();
         let productAddons = itemAddons.filter(addon => addon.inCart);
-        let itemToAdd = {...currentArrangement, productAddons : productAddons};
+        let itemToAdd = {...currentArrangement, productAddons : productAddons, totalPrice: totalPrice};
         addToCart(itemToAdd);
         setModalOpen(true);
     }
@@ -97,12 +92,12 @@ const ViewArrangement = () => {
                         alt={currentArrangement.name} />
                 </div>
                 <div className="col-12 col-lg-6 p-0">
-                    <div className="card">
-                        <div className="card-body">
+                    <div className="card border-0">
+                        <div className="card-body text-center">
                             <h1>{currentArrangement.name}</h1> <h4><Currency quantity={totalPrice} currency="USD"/></h4>
                             <span>{currentArrangement.longDescription}</span>
                             {itemAddons.length > 0 ? 
-                                <Fragment>
+                                <div className='pt-4'>
                                     <h3>Make it Special!</h3>
                                     <div className="row mt-3 ml-0 mr-0 addonContainer">
 
@@ -116,7 +111,7 @@ const ViewArrangement = () => {
                                                         height="130"/>
                                                 </div>
                                                 <div className="card-body addonDescription">
-                                                    <span>{item.description}</span>
+                                                    <span>{item.description}</span><br/>
                                                     {item.inCart ? 
                                                         <a name={item.name} className="btn btn-outline-danger" onClick={(e => {toggleAddon(e)})}>Remove</a>
                                                         :
@@ -127,9 +122,16 @@ const ViewArrangement = () => {
                                         ))}
 
                                     </div>
-                                </Fragment>
+                                </div>
                             :
                                 <Fragment/>
+                            }
+
+                            {orderedBalloons ? 
+                                <div className="mt-4">
+                                    Note: When ordering ballons, please add the occasion in the "special instructions" input in the cart before checking out in order to ensure proper balloon is used.
+                                </div> 
+                                : <Fragment/>
                             }
 
                             <button 
@@ -143,6 +145,7 @@ const ViewArrangement = () => {
                 </div>
             </div>
             <Modal 
+                ariaHideApp={false}
                 isOpen={isModalOpen}
                 style={modalStyle}>
                 <div className="container m-3 text-center">

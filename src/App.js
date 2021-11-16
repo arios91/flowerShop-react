@@ -51,7 +51,7 @@ const App = () => {
 
  
   return (
-    <MyContext.Provider value={{cartItems, addToCart, arrangementPages, currentPage, setCurrentPage, currentArrangement, setCurrentArrangement, addons}}>
+    <MyContext.Provider value={{cartItems, addToCart, setCartItems, arrangementPages, currentPage, setCurrentPage, currentArrangement, setCurrentArrangement, addons}}>
       <Router>
         <div className="App">
           <Header/>

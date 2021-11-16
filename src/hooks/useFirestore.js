@@ -1,4 +1,4 @@
-import { getFirestore, collection, getDocs, query, doc, onSnapshot } from 'firebase/firestore';
+import { getFirestore, collection, getDocs, query, doc, onSnapshot, where } from 'firebase/firestore';
 import { useState, useEffect } from 'react';
 import { projectFirestore } from '../firebase';
 
@@ -17,7 +17,12 @@ const useFirestore = (col) => {
 
   useEffect(() => {
  
-      const q = query(collection(projectFirestore, col));
+      let collectionRef = collection(projectFirestore, col);
+
+      let q = query(collectionRef)
+      if(col === 'arrangements'){
+        q = query(collectionRef, where("active", "==", true));
+      }
 
       /* const unsub = onSnapshot(q, (snap) => {
           let documents = [];
