@@ -7,39 +7,16 @@ import Arrangement from '../Arrangement';
 
 
 const Dashboard = () => {
-    const [tmpValue, setTmpValue] = useState('');
     const [sortList, setSortList] = useState([]);
     const [currentSort, setCurrentSort] = useState([]);
     const {addToCart, arrangementPages, currentPage, setCurrentPage} = useContext(MyContext);
+    /*
+        To-do:
+        - sort and filter
+        - styling
+    */
 
     
-    
-
-
-   let myOnChange = (e) => {
-       setTmpValue(e.target.value)
-   }
-   let testClick = () => {
-    if(tmpValue){
-        console.log(`send ${tmpValue}`)
-        addToCart(tmpValue);
-        setTmpValue('');
-    }else{
-        console.log('nothing to send')
-    }
-   }
-
-   
-   /*
-
-{arrangements.map((item) => (
-    <div className='col-12' key={item.id}>
-        <h3>{item.name}</h3>
-        
-    </div>
-))}
-
-*/
     let onPageClick = (e) => {
         let newPage = e.target.text - 1;
         if(newPage !== currentPage){
@@ -51,7 +28,7 @@ const Dashboard = () => {
     let onNavButtonClick = (e) => {
         if(e.target.name === 'prevButton'){
             if(currentPage > 0){
-                setCurrentPage(currentPage + 1);
+                setCurrentPage(currentPage - 1);
             }
         }else if(e.target.name === 'nextButton'){
             if(currentPage < arrangementPages.length - 1){
@@ -121,14 +98,7 @@ const Dashboard = () => {
     )
     
 }
-/*
-{arrangements.map((item) => (
-    <div className='col-12' key={item.id}>
-        <h3>{item.name}</h3>
-        
-    </div>
-))}
-*/
+
 export default Dashboard;
 
 

@@ -12,6 +12,7 @@ const Arrangement = ({item}) => {
         console.log('clicked');
         setCurrentArrangement(item);
     }
+    
     return (
         <div className='arrangementContainer card mb-4'>
             <img src={item.imageUrl} alt="arrangement image" />

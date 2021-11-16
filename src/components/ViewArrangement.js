@@ -1,34 +1,57 @@
-import React from 'react'
-import {useContext, useState } from 'react';
+import React, { Fragment } from 'react'
+import {useContext, useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import {MyContext} from '../Contexts/MyContext';
 import { useHistory, browserHistory, Redirect   } from 'react-router-dom';
 import Modal from 'react-modal';
 
 const ViewArrangement = () => {
-    const {currentArrangement, addons, setCartItems} = useContext(MyContext);
-    const [testState, setTestState] = useState(false);
+    const {currentArrangement, addons, addToCart} = useContext(MyContext);
     const [itemAddons, setItemAddons] = useState([])
+    const [redirect,  setRedirect] = useState(false);
 
     let [isModalOpen, setModalOpen] = useState(false);
-    let addonContainerClass = 'imageContainer'
+    let addonContainerClass = 'imageContainer';
     let totalPrice = 0;
 
-
-    if(!currentArrangement.name){
-        console.log('nothing to display');
+    let goHome = () => {
+        console.log('going home')
         return <Redirect to='/'/>
-    }else{}
-
-    let tmpAddons = addons.filter(addon => currentArrangement.addonNames.includes(addon.name));
-    tmpAddons = tmpAddons.map(addon => {
-        return {...addon, inCart: false}
-    })
-    if(itemAddons.length == 0){
-        setItemAddons(tmpAddons);
     }
+
+
+    useEffect(() => {
+        
+        console.log('hi from view arrangement');
+        console.log('hi from useEffect');
+        if(!currentArrangement.name){
+            console.log('nothing to display');
+            setRedirect(true);
+        }else{
+            console.log(currentArrangement);
+            console.log(addons)
+            if(currentArrangement.addonNames && currentArrangement.addonNames.length > 0){
+                console.log('setting addons');
+                let tmpAddons = addons.filter(addon => currentArrangement.addonNames.includes(addon.name));
     
-    addonContainerClass += ' col-' + (12 / itemAddons.length);
+                tmpAddons = tmpAddons.map(addon => {
+                    return {...addon, inCart: false}
+                })
+                setItemAddons(tmpAddons);
+
+                if(tmpAddons.length > 0){
+                    addonContainerClass += ' col-' + (12 / tmpAddons.length);
+                }
+                
+            }
+        }
+    }, []);
+
+
+    if(redirect){
+        console.log('redirecting');
+        return <Redirect to='/'/>
+    }
 
 
     let toggleAddon = e => {
@@ -40,26 +63,23 @@ const ViewArrangement = () => {
         }));
     }
 
-    let addToCart = (e) => {
-        console.log('click')
-        //let itemToAdd = {...currentArrangement, productAddons : itemAddons.filter(addon => addon.inCart)};
-        //console.log(itemToAdd);
+    let toCart = (e) => {
+        e.preventDefault();
+        let itemToAdd = {...currentArrangement, productAddons : itemAddons.filter(addon => addon.inCart)};
+        addToCart(itemToAdd);
         setModalOpen(true);
-
     }
 
-    let removeModal = e => {
-        console.log('remove')
-        setModalOpen(false);
+    let modalStyle = {
+        content: {
+            top: '50%',
+            left: '50%',
+            right: 'auto',
+            bottom: 'auto',
+            marginRight: '-50%',
+            transform: 'translate(-50%, -50%)',
+          },
     }
-
-    
-      
-
-
-    
-
-
 
     return (
         <div className="container">
@@ -76,46 +96,70 @@ const ViewArrangement = () => {
                         <div className="card-body">
                             <h1>{currentArrangement.name}</h1> <h4>{totalPrice}</h4>
                             <span>{currentArrangement.longDescription}</span>
-                            <h3>Make it Special!</h3>
-                            <div className="row mt-3 ml-0 mr-0 addonContainer">
+                            {itemAddons.length > 0 ? 
+                                <Fragment>
+                                    <h3>Make it Special!</h3>
+                                    <div className="row mt-3 ml-0 mr-0 addonContainer">
 
-                                {itemAddons.map(item => (
-                                    <div className={addonContainerClass}>
-                                        <div className="imageContainer">
-                                            <img 
-                                                src={item.imageUrl} 
-                                                alt={item.name} 
-                                                className="card-img-top"
-                                                height="130"/>
-                                        </div>
-                                        <div className="card-body addonDescription">
-                                            <span>{item.description}</span>
-                                            {item.inCart ? 
-                                                <a name={item.name} className="btn btn-outline-danger" onClick={(e => {toggleAddon(e)})}>Remove</a>
-                                                :
-                                                <a name={item.name} className="btn btn-outline-primary" onClick={(e => {toggleAddon(e)})}>Add</a>
-                                            }
-                                        </div>
+                                        {itemAddons.map(item => (
+                                            <div className={addonContainerClass} key={item.id}>
+                                                <div className="imageContainer">
+                                                    <img 
+                                                        src={item.imageUrl} 
+                                                        alt={item.name} 
+                                                        className="card-img-top"
+                                                        height="130"/>
+                                                </div>
+                                                <div className="card-body addonDescription">
+                                                    <span>{item.description}</span>
+                                                    {item.inCart ? 
+                                                        <a name={item.name} className="btn btn-outline-danger" onClick={(e => {toggleAddon(e)})}>Remove</a>
+                                                        :
+                                                        <a name={item.name} className="btn btn-outline-primary" onClick={(e => {toggleAddon(e)})}>Add</a>
+                                                    }
+                                                </div>
+                                            </div>
+                                        ))}
+
                                     </div>
-                                ))}
+                                </Fragment>
+                            :
+                                <Fragment/>
+                            }
 
-                            </div>
                             <button 
                                 data-bs-toggle="modal" data-bs-target="#exampleModal"
                                 className="btn btn-primary btn-block mt-4"
-                                onClick={(e => addToCart(e))}>
+                                onClick={(e => toCart(e))}>
                                     Add To Cart
                             </button>
                         </div>
                     </div>
                 </div>
             </div>
-            <Modal isOpen={isModalOpen}>
-                test modal
-                <button className="btn btn-primary" 
-                onClick={(e => removeModal(e))}>
-                    Test
-                </button>
+            <Modal 
+                isOpen={isModalOpen}
+                style={modalStyle}>
+                <div className="container m-3 text-center">
+                    <div className="row mb-2">
+                        <div className="col-12">
+                            Successfully Added to Cart!
+                        </div>
+                    </div>
+                    <div className="row">
+                        <div className="col-12">
+                            <Link className="btn btn-secondary"
+                                to='/'>
+                                Continue Shopping
+                            </Link>
+                            <Link className="btn btn-primary" 
+                                to='/cart'>
+                                Go To Cart
+                            </Link>
+
+                        </div>
+                    </div>
+                </div>
             </Modal>
         </div>
     )

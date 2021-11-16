@@ -15,7 +15,7 @@ const Cart = () => {
             <div>no items in your cart</div>
             :
             <div>
-                {cartItems}
+                {cartItems.length}
             </div>
             
             }
