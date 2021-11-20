@@ -20,24 +20,8 @@ const App = () => {
   const [currentArrangement, setCurrentArrangement] = useState({});
   const {arrangementPages} = useFirestore('arrangements')
   const {addons} = useFirestore('addons')
-
-
-  /* if(arrangementPages.length == 0 && arrangements.length > 0){
-    let counter = 0, arrX = 0, itemsPerPage = 12;
-    let tmpPages = [], page = [];
-    arrangements.forEach(item => {
-
-      if(counter == itemsPerPage ){
-        tmpPages.push(page);
-        page = [];
-        counter = 0;
-      }else{
-        page.push(item);
-        counter++;
-      }
-    })
-    setArrangementPages(tmpPages);
-  } */
+  const {settings} = useFirestore('settings');
+  
 
   let addToCart = (item) => {
     //if no item, alert somehow
@@ -48,10 +32,9 @@ const App = () => {
     }
   }
 
-
  
   return (
-    <MyContext.Provider value={{cartItems, addToCart, setCartItems, arrangementPages, currentPage, setCurrentPage, currentArrangement, setCurrentArrangement, addons}}>
+    <MyContext.Provider value={{settings,cartItems, addToCart, setCartItems, arrangementPages, currentPage, setCurrentPage, currentArrangement, setCurrentArrangement, addons}}>
       <Router>
         <div className="App">
           <Header/>

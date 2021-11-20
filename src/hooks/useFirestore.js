@@ -5,6 +5,7 @@ import { projectFirestore } from '../firebase';
 const useFirestore = (col) => {
   const [arrangementPages, setArrangements] = useState([]);
   const [addons, setAddons] = useState([]);
+  const [settings, setSettings] = useState(new Map());
   const itemsPerPage = 12;
 
   let setDocs = (documents, col) => {
@@ -12,6 +13,12 @@ const useFirestore = (col) => {
       setAddons(documents);
     }else if(col === 'arrangements'){
       setArrangements(documents);
+    }else if(col === 'settings'){
+      let tmpMap = new Map();
+      documents.forEach(doc => {
+        return tmpMap.set(doc.name, doc.value);
+      })
+      setSettings(tmpMap);
     }
   }
 
@@ -32,11 +39,10 @@ const useFirestore = (col) => {
           setDocs(documents); */
       const unsub = onSnapshot(q, (snap) => {
         let documents = [];
-        if(col === 'addons'){
+        if(col === 'addons' || col === 'settings'){
           snap.forEach(doc => {
             documents.push({...doc.data(), id: doc.id});
           })
-
         }else if(col === 'arrangements'){
           let counter = 0;
           let page = [];
@@ -50,7 +56,6 @@ const useFirestore = (col) => {
               counter++
             }
           });
-
         }
         setDocs(documents, col);
     })
@@ -60,7 +65,7 @@ const useFirestore = (col) => {
     // a component using the hook unmounts
   }, [col]);
 
-  return { arrangementPages, addons };
+  return { arrangementPages, addons, settings };
 }
 
 export default useFirestore;

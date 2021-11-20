@@ -2,11 +2,43 @@
 import { useContext, Fragment, useState } from 'react';
 import Currency from 'react-currency-formatter';
 import { MyContext } from '../Contexts/MyContext';
+import PhoneInput from 'react-phone-number-input/input'
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+
 
 const Cart = () => {
     const {} = useContext
-    const {cartItems, setCartItems} = useContext(MyContext);
+    const {cartItems, setCartItems, settings} = useContext(MyContext);
     const [isDelivery, setIsDelivery] = useState(true);
+    const [customerPhone, setCustomerPhone] = useState();
+    const [recipientPhone, setRecipientPhone] = useState();
+    const [startDate, setStartDate] = useState(() => {
+        console.log('start')
+        let daysToAdd = 0
+        let currentDate = new Date();
+        let currentDay = currentDate.getDay();
+        //if sunday
+        if(currentDay == 0){
+            return currentDate.setDate(currentDate.getDate() + 1);
+        }
+        //if after cutoff time
+        let currentHour = currentDate.getHours();
+        let cutoffTime = settings.get('cutoffTime')
+        console.log(currentHour);
+        console.log(cutoffTime);
+        if(currentHour >= cutoffTime){
+            console.log('in here');
+            //if saturday, add 2 to get to monday
+            if(currentDay == 6){
+                daysToAdd = 2;
+            }else{
+                daysToAdd = 1;
+            }
+        }
+    
+        return currentDate.setDate(currentDate.getDate() + daysToAdd);
+    });
 
 
     let remove = indexToRemove => {
@@ -28,6 +60,21 @@ const Cart = () => {
         }else{
             setIsDelivery(true);
         }
+    }
+
+    let onPhoneChange = value => {
+
+        console.log(value);
+    }
+
+    const isWeekday = date => {
+        const day = date.getDay(date);
+        return day !== 0;
+    }
+
+    const getMinDate = () => {
+        let tmpDate = startDate;
+        return tmpDate;
     }
 
     return (
@@ -84,7 +131,14 @@ const Cart = () => {
                                 </div>
                                 <div className="form-group">
                                     <label htmlFor="phoneNumber">Phone Number</label>
-                                    <input type="text" name="phoneNumber" id="phoneNumberInput" className='form-control' required/>
+                                    <PhoneInput
+                                        name="phoneNumber"
+                                        country="US"
+                                        value={customerPhone}
+                                        placeholder='(123) 456-7890'
+                                        className='form-control'
+                                        onChange={onPhoneChange}
+                                        rules={{required:true}}/>
                                 </div>
                                 <div className="form-group">
                                     <label htmlFor="email">Email</label>
@@ -103,7 +157,13 @@ const Cart = () => {
                                 </div>
                                 <div className="form-group">
                                     <label htmlFor="recipientPhoneNumber">Phone Number (optional)</label>
-                                    <input type="text" name="recipientPhoneNumber" id="recipientPhoneNumberInput" className='form-control'/>
+                                    <PhoneInput 
+                                        country="US"
+                                        className='form-control'
+                                        name="recipientPhoneNumber" 
+                                        value={recipientPhone}
+                                        onChange={onPhoneChange}
+                                        placeholder="(123) 456-7890"/>
                                 </div>
 
                             </div>
@@ -113,29 +173,34 @@ const Cart = () => {
                             <div className="col-12">
                                 <h4>3. Delivery Options</h4>
                             </div>
-                            <div className="col-12 form-control remove-height">
-                                <div className="radio">
-                                    <label>
-                                        <input type="radio" name="deliveryOption" value="delivery"
-                                            onChange={(e) => onDeliveryChange(e)}
-                                            checked={isDelivery}/> Delivery
-                                    </label>
-                                    <label>
-                                        <input type="radio" name="deliveryOption" value="pickup"
-                                            onChange={(e) => onDeliveryChange(e)}
-                                            checked={!isDelivery}/> Pickup
-                                    </label>
-                                </div>
-                                
-                    
-                    
+                            <div className="col-12">
+                                <label className='pr-2'>
+                                    <input type="radio" name="deliveryOption" value="delivery"
+                                        onChange={(e) => onDeliveryChange(e)}
+                                        checked={isDelivery}/> Delivery
+                                </label>
+                                <label className='pl-2'>
+                                    <input type="radio" name="deliveryOption" value="pickup"
+                                        onChange={(e) => onDeliveryChange(e)}
+                                        checked={!isDelivery}/> Pickup
+                                </label><br/>
                                 {isDelivery ? 
-                                <div>Delivery</div>
-                                :
-                                <span>
-                                    You will be alerted via phone call when your product is ready for pick up.<br/> 
-                                    If you have any questions or concerns regarding pickup just call us at 956-607-6047
-                                </span>}
+                                    <Fragment>
+                                        <span>{settings.get('deliveryDateMessage')}</span><br/>
+                                        <div className="form-control">
+                                            <label htmlFor="deliveryDate">Delivery Date</label>
+                                            <DatePicker
+                                                selected={startDate}
+                                                filterDate={isWeekday}
+                                                minDate={getMinDate()}
+                                                onChange={(date) => setStartDate(date)}/>
+                                        </div>
+                                    </Fragment>
+                                    :
+                                    <div className="form-control">
+                                        <span>{settings.get('pickupMessage')}</span>
+                                    </div>
+                                }
                             </div>
 
                         </div>
@@ -149,3 +214,15 @@ const Cart = () => {
 }
 
 export default Cart
+
+
+/*
+
+                                    <input 
+                                        type="tel" 
+                                        name="phoneNumber" 
+                                        id="phoneNumberInput" 
+                                        className='form-control' 
+                                        placeholder="(123) 456-7890"
+                                        pattern="\(\d{3}\) \d{3}-\d{4}"
+                                        required/>*/
