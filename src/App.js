@@ -4,50 +4,25 @@ import Header from './components/Header';
 import Cart from './components/Cart';
 import Dashboard from './components/dashboard/Dashboard';
 import './App.css';
-import useFirestore from './hooks/useFirestore';
-import { useState, useEffect } from 'react';
-import PropTypes from 'prop-types';
-import PropsRoute from './components/PropsRoute';
-import {MyContext} from './Contexts/MyContext'
-import Loading from './components/Loading'
-import Arrangement from './components/Arrangement';
+import {ContextProvider} from './Contexts/MyContext'
 import ViewArrangement from './components/ViewArrangement';
 
 const App = () => {
-  const [cartItems, setCartItems] = useState([]);
-  //const [arrangementPages, setArrangementPages] = useState([]);
-  const [currentPage , setCurrentPage] = useState(0);
-  const [currentArrangement, setCurrentArrangement] = useState({});
-  const {arrangementPages} = useFirestore('arrangements')
-  const {addons} = useFirestore('addons')
-  const {settings} = useFirestore('settings');
-  
 
-  let addToCart = (item) => {
-    //if no item, alert somehow
-    if(item){
-      setCartItems([item, ...cartItems]);      
-    }else{
-      alert('Error adding item to your cart')
-    }
-  }
-
- 
   return (
-    <MyContext.Provider value={{settings,cartItems, addToCart, setCartItems, arrangementPages, currentPage, setCurrentPage, currentArrangement, setCurrentArrangement, addons}}>
+    <ContextProvider>
       <Router>
         <div className="App">
           <Header/>
-          
           <Switch>
-            <PropsRoute exact path="/" component={Dashboard}/>
-            <PropsRoute exact path="/cart" component={Cart}/>
-            <PropsRoute exact path="/viewProduct" component={ViewArrangement}/>
+            <Route exact path="/" component={Dashboard}/>
+            <Route exact path="/cart" component={Cart}/>
+            <Route exact path="/viewProduct" component={ViewArrangement}/>
           </Switch>
           <Footer/>
         </div>
       </Router>
-    </MyContext.Provider>
+    </ContextProvider>
   );
 }
 

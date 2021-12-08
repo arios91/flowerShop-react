@@ -1,7 +1,7 @@
 
 import { useContext, Fragment, useState } from 'react';
 import Currency from 'react-currency-formatter';
-import { MyContext } from '../Contexts/MyContext';
+import MyContext from '../Contexts/MyContext';
 import PhoneInput from 'react-phone-number-input/input'
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
@@ -88,13 +88,12 @@ const Cart = () => {
             :
             <Fragment>
                 {cartItems.map((item, index) => (
-                    <div className="mt-3" key={item.name}>
+                    <div className="row mt-3" key={item.name}>
                         <div className="col-4 p-0">
                             <img src={item.imageUrl} alt={item.name} className='w-130'/>
                         </div>
                         <div className="col-4">
                             <h4>{item.name}</h4>
-                            {index}
                             {item.productAddons && item.productAddons.length > 0 ?
                             <Fragment>
                                 <div>Along with:</div>
@@ -187,13 +186,59 @@ const Cart = () => {
                                 {isDelivery ? 
                                     <Fragment>
                                         <span>{settings.get('deliveryDateMessage')}</span><br/>
-                                        <div className="form-control">
+                                        <div className="form-group">
                                             <label htmlFor="deliveryDate">Delivery Date</label>
                                             <DatePicker
                                                 selected={startDate}
                                                 filterDate={isWeekday}
                                                 minDate={getMinDate()}
+                                                className='form-control'
                                                 onChange={(date) => setStartDate(date)}/>
+                                        </div>
+                                        <div className="row">
+                                            <div className="form-group col-12">
+                                                <label htmlFor="addressInput">Address</label>
+                                                <input 
+                                                    type="text" 
+                                                    className='form-control' 
+                                                    name="addressInput" 
+                                                    id="addressInputId" 
+                                                    required/>
+                                            </div>
+                                            <div className="form-group col-8">
+                                                <label htmlFor="addrCity">City</label>
+                                                <input 
+                                                    type="text" 
+                                                    name="addrCity" 
+                                                    id="cityInput"
+                                                    className='form-control'
+                                                    required/>
+                                            </div>
+                                            <div className="form-group col-4">
+                                                <label htmlFor="addrZip">ZIP</label>
+                                                <input 
+                                                    type="text" 
+                                                    name="addrZip" 
+                                                    id="zipInput"
+                                                    className='form-control'
+                                                    required/>
+                                            </div>
+                                            <div className="form-group col-12">
+                                                <label htmlFor="cardMessage">Card Message</label>
+                                                <input 
+                                                    type="text" 
+                                                    name="cardMessage" 
+                                                    className='form-control'
+                                                    id="cardMessageInput" />
+                                            </div>
+                                            <div className="form-group col-12">
+                                                <label htmlFor="specialInstructions">Special Instructions</label>
+                                                <input 
+                                                    type="text" 
+                                                    name="specialInstructions"
+                                                    className='form-control'
+                                                    id="specialInstructionsInput" />
+                                            </div>
                                         </div>
                                     </Fragment>
                                     :

@@ -1,14 +1,13 @@
 import React, { Fragment } from 'react'
 import {useContext, useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import {MyContext} from '../Contexts/MyContext';
+import MyContext from '../Contexts/MyContext';
 import { Redirect } from 'react-router-dom';
 import Currency from 'react-currency-formatter';
 import Modal from 'react-modal';
 
 const ViewArrangement = () => {
-    const {currentArrangement, addons, addToCart} = useContext(MyContext);
-    const [itemAddons, setItemAddons] = useState([])
+    const {currentArrangement, addToCart, currentAddons, setCurrentAdddons} = useContext(MyContext);
     const [redirect,  setRedirect] = useState(false);
     const [totalPrice, setTotalPrice] = useState(0);
     const [orderedBalloons, setOrderedBallons] = useState(false);
@@ -21,18 +20,8 @@ const ViewArrangement = () => {
             setRedirect(true);
         }else{
             setTotalPrice(currentArrangement.price);
-            if(currentArrangement.addonNames && currentArrangement.addonNames.length > 0){
-                let tmpAddons = addons.filter(addon => currentArrangement.addonNames.includes(addon.name));
-    
-                tmpAddons = tmpAddons.map(addon => {
-                    return {...addon, inCart: false}
-                })
-                setItemAddons(tmpAddons);
-
-                if(tmpAddons.length > 0){
-                    addonContainerClass += ' col-' + (12 / tmpAddons.length);
-                }
-                
+            if(currentAddons.length > 0){
+                addonContainerClass += ' col-' + (12 / currentAddons.length);
             }
         }
     }, []);
@@ -44,7 +33,7 @@ const ViewArrangement = () => {
 
 
     let toggleAddon = e => {
-        setItemAddons(itemAddons.map(item => {
+        setCurrentAdddons(currentAddons.map(item => {
             if(item.name == e.target.name){
                 if(item.inCart){
                     setTotalPrice(totalPrice - item.price);
@@ -64,7 +53,7 @@ const ViewArrangement = () => {
 
     let toCart = (e) => {
         e.preventDefault();
-        let productAddons = itemAddons.filter(addon => addon.inCart);
+        let productAddons = currentAddons.filter(addon => addon.inCart);
         let itemToAdd = {...currentArrangement, productAddons : productAddons, totalPrice: totalPrice};
         addToCart(itemToAdd);
         setModalOpen(true);
@@ -96,12 +85,12 @@ const ViewArrangement = () => {
                         <div className="card-body text-center">
                             <h1>{currentArrangement.name}</h1> <h4><Currency quantity={totalPrice} currency="USD"/></h4>
                             <span>{currentArrangement.longDescription}</span>
-                            {itemAddons.length > 0 ? 
+                            {currentAddons.length > 0 ? 
                                 <div className='pt-4'>
                                     <h3>Make it Special!</h3>
                                     <div className="row mt-3 ml-0 mr-0 addonContainer">
 
-                                        {itemAddons.map(item => (
+                                        {currentAddons.map(item => (
                                             <div className={addonContainerClass} key={item.id}>
                                                 <div className="imageContainer">
                                                     <img 

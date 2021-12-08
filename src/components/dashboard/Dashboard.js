@@ -1,26 +1,32 @@
 import { useState, useEffect, useContext } from 'react';
 import Select from "react-dropdown-select";
 import PropTypes from 'prop-types';
-import {MyContext} from '../../Contexts/MyContext'
 import Loading from '../Loading';
 import Arrangement from '../Arrangement';
+import MyContext from '../../Contexts/MyContext';
 
 
 const Dashboard = () => {
     const [sortList, setSortList] = useState([]);
     const [currentSort, setCurrentSort] = useState([]);
-    const {addToCart, arrangementPages, currentPage, setCurrentPage} = useContext(MyContext);
+    const {addToCart, settings, arrangementPages, currentPage, setCurrentPage, isLoading} = useContext(MyContext);
+
+    /* const {addToCart, arrangementPages, currentPage, setCurrentPage} = useContext(MyContext); */
     /*
         To-do:
         - sort and filter
         - styling
     */
 
+        
+
+
     
     let onPageClick = (e) => {
+        e.preventDefault();
         let newPage = e.target.text - 1;
+        console.log(newPage)
         if(newPage !== currentPage){
-            console.log(newPage);
             setCurrentPage(newPage)
         }
     }
@@ -38,10 +44,11 @@ const Dashboard = () => {
     }
 
     let pageButtons = arrangementPages.map((page, index) => (
-        <li className='pageItem' onClick={(e) => {onPageClick(e)}} key={index}>
+        <li className='pageItem' onClick={onPageClick} key={index}>
             <a className='pageLink'>{index + 1}</a>
         </li>
     ));
+
 
 
     return (
@@ -74,11 +81,11 @@ const Dashboard = () => {
                         <div className="col-12 ">
                             <ul className='pagination'>
                                 <li className='pageItem' >
-                                    <a name='prevButton' className='pageLink' onClick={(e) => {onNavButtonClick(e)}}>Previous</a>
+                                    <a name='prevButton' className='pageLink' onClick={onNavButtonClick}>Previous</a>
                                 </li>
                                 {pageButtons}
                                 <li className='pageItem'>
-                                    <a name='nextButton' className='pageLink' onClick={(e) => {onNavButtonClick(e)}}>Next</a>
+                                    <a name='nextButton' className='pageLink' onClick={onNavButtonClick}>Next</a>
                                 </li>
                             </ul>
                         </div>
@@ -87,7 +94,7 @@ const Dashboard = () => {
                     <div className="row">
                         {arrangementPages[currentPage].map(tmpItem => (
                             <div className='col-6 col-md-4' key={tmpItem.id}>
-                                <Arrangement item={tmpItem}/>
+                                <Arrangement arrangement={tmpItem}/>
                             </div>
                         ))}
                     </div>

@@ -3,12 +3,14 @@ import { useState, useEffect } from 'react';
 import { projectFirestore } from '../firebase';
 
 const useFirestore = (col) => {
+  
   const [arrangementPages, setArrangements] = useState([]);
   const [addons, setAddons] = useState([]);
   const [settings, setSettings] = useState(new Map());
   const itemsPerPage = 12;
 
   let setDocs = (documents, col) => {
+    console.log('firestore - setDocs')
     if(col === 'addons'){
       setAddons(documents);
     }else if(col === 'arrangements'){
@@ -23,6 +25,7 @@ const useFirestore = (col) => {
   }
 
   useEffect(() => {
+    console.log('firestore - useEffect')
  
       let collectionRef = collection(projectFirestore, col);
 
@@ -31,12 +34,6 @@ const useFirestore = (col) => {
         q = query(collectionRef, where("active", "==", true));
       }
 
-      /* const unsub = onSnapshot(q, (snap) => {
-          let documents = [];
-          snap.forEach(doc => {
-            documents.push({...doc.data(), id: doc.id});
-          });
-          setDocs(documents); */
       const unsub = onSnapshot(q, (snap) => {
         let documents = [];
         if(col === 'addons' || col === 'settings'){
