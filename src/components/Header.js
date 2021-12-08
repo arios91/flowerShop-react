@@ -1,6 +1,9 @@
 import {Link} from 'react-router-dom'
+import {useContext} from 'react';
+import MyContext from '../Contexts/MyContext';
 
 const Header = () => {
+    const {away} = useContext(MyContext);
     /*
     state = {
         setNavbarOpaque: false
@@ -19,7 +22,7 @@ const Header = () => {
             </div>
             <div className="row headerRow">
                 <div className="col headerSubscript"><Link to="/">Home</Link></div>
-                <div className="col headerSubscript"><Link to="/cart">Cart</Link></div>
+                {!away && <div className="col headerSubscript"><Link to="/cart">Cart</Link></div>}
             </div>
         </div>
     )

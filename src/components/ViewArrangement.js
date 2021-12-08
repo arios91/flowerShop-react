@@ -7,13 +7,15 @@ import Currency from 'react-currency-formatter';
 import Modal from 'react-modal';
 
 const ViewArrangement = () => {
-    const {currentArrangement, addToCart, currentAddons, setCurrentAdddons} = useContext(MyContext);
+    const {currentArrangement, addToCart, currentAddons, setCurrentAdddons, away} = useContext(MyContext);
     const [redirect,  setRedirect] = useState(false);
     const [totalPrice, setTotalPrice] = useState(0);
     const [orderedBalloons, setOrderedBallons] = useState(false);
 
     let [isModalOpen, setModalOpen] = useState(false);
     let addonContainerClass = 'imageContainer';
+
+    console.log(away)
 
     useEffect(() => {
         if(!currentArrangement.name){
@@ -126,8 +128,9 @@ const ViewArrangement = () => {
                             <button 
                                 data-bs-toggle="modal" data-bs-target="#exampleModal"
                                 className="btn btn-primary btn-block mt-4"
+                                disabled={away}
                                 onClick={(e => toCart(e))}>
-                                    Add To Cart
+                                    Add To Cart 2
                             </button>
                         </div>
                     </div>

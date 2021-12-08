@@ -16,7 +16,7 @@ export const ContextProvider = ({children}) => {
     const [currentArrangement, setCurrentArrangement] = useState({});
     const [currentAddons, setCurrentAdddons] = useState([])
     const [awayMessage, setAwayMessage] = useState('');
-    const [showAwayMessage, setShowAwayMessage] = useState(false)
+    const [away, setAway] = useState(false)
 
     useEffect(() => {
         if(settings.size == 0 || addons.length == 0 || arrangementPages.length == 0){
@@ -33,9 +33,9 @@ export const ContextProvider = ({children}) => {
             
             let currentDate = new Date();
             if(currentDate >= beginDate && currentDate <= endDate){
-                setShowAwayMessage(true);
+                setAway(true);
             }else{
-                setShowAwayMessage(false);
+                setAway(false);
             }
             
 
@@ -89,7 +89,7 @@ export const ContextProvider = ({children}) => {
         addToCart,
         setCartItems,
         awayMessage,
-        showAwayMessage
+        away
     }}>
         {children}
     </MyContext.Provider>

@@ -1,19 +1,39 @@
 
-import { useContext, Fragment, useState } from 'react';
+import { useContext, Fragment, useState, useEffect } from 'react';
 import Currency from 'react-currency-formatter';
 import MyContext from '../Contexts/MyContext';
 import PhoneInput from 'react-phone-number-input/input'
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import { Redirect } from 'react-router';
 
 
 const Cart = () => {
     const {} = useContext
-    const {cartItems, setCartItems, settings} = useContext(MyContext);
+    const {cartItems, setCartItems, settings, away} = useContext(MyContext);
+    const [redirect,  setRedirect] = useState(false);
     const [isDelivery, setIsDelivery] = useState(true);
     const [customerPhone, setCustomerPhone] = useState();
     const [recipientPhone, setRecipientPhone] = useState();
-    const [startDate, setStartDate] = useState(() => {
+
+    useEffect(() => {
+        if(away){
+            setRedirect(true);
+        }
+    }, []);
+
+
+    if(redirect){
+        return <Redirect to='/'/>
+    }
+
+    const setDeliveryDate = date => {
+        console.log(date);
+    }
+
+
+
+    /* const [startDate, setStartDate] = useState(() => {
         console.log('start')
         let daysToAdd = 0
         let currentDate = new Date();
@@ -38,7 +58,7 @@ const Cart = () => {
         }
     
         return currentDate.setDate(currentDate.getDate() + daysToAdd);
-    });
+    }); */
 
 
     let remove = indexToRemove => {
@@ -70,11 +90,6 @@ const Cart = () => {
     const isWeekday = date => {
         const day = date.getDay(date);
         return day !== 0;
-    }
-
-    const getMinDate = () => {
-        let tmpDate = startDate;
-        return tmpDate;
     }
 
     return (
@@ -188,10 +203,9 @@ const Cart = () => {
                                         <span>{settings.get('deliveryDateMessage')}</span><br/>
                                         <div className="form-group">
                                             <label htmlFor="deliveryDate">Delivery Date</label>
-                                            <DatePicker
-                                                selected={startDate}
+                                            <DatePickers
                                                 filterDate={isWeekday}
-                                                minDate={getMinDate()}
+                                                minDate={new Date()}
                                                 className='form-control'
                                                 onChange={(date) => setStartDate(date)}/>
                                         </div>

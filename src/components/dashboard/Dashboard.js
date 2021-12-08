@@ -9,7 +9,7 @@ import MyContext from '../../Contexts/MyContext';
 const Dashboard = () => {
     const [sortList, setSortList] = useState([]);
     const [currentSort, setCurrentSort] = useState([]);
-    const {arrangementPages, currentPage, setCurrentPage, isLoading, showAwayMessage, awayMessage} = useContext(MyContext);
+    const {arrangementPages, currentPage, setCurrentPage, isLoading, away, awayMessage} = useContext(MyContext);
 
 
 
@@ -55,7 +55,7 @@ const Dashboard = () => {
             {!arrangementPages || arrangementPages.length == 0 ? <Loading></Loading>:
             <div className="row">
                 <div className="col-12 text-center">
-                    {showAwayMessage && awayMessage}
+                    {away && awayMessage}
                 </div>
                 <div className="col-12 p-0">
                     <img className="mainImage" src="https://images.pexels.com/photos/428611/bouquet-roses-colorful-floral-428611.jpeg?w=1260&h=750&auto=compress&cs=tinysrgb" alt="" />
