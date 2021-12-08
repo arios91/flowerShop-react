@@ -9,7 +9,9 @@ import MyContext from '../../Contexts/MyContext';
 const Dashboard = () => {
     const [sortList, setSortList] = useState([]);
     const [currentSort, setCurrentSort] = useState([]);
-    const {addToCart, settings, arrangementPages, currentPage, setCurrentPage, isLoading} = useContext(MyContext);
+    const {arrangementPages, currentPage, setCurrentPage, isLoading, showAwayMessage, awayMessage} = useContext(MyContext);
+
+
 
     /* const {addToCart, arrangementPages, currentPage, setCurrentPage} = useContext(MyContext); */
     /*
@@ -17,10 +19,6 @@ const Dashboard = () => {
         - sort and filter
         - styling
     */
-
-        
-
-
     
     let onPageClick = (e) => {
         e.preventDefault();
@@ -50,11 +48,15 @@ const Dashboard = () => {
     ));
 
 
+    return isLoading ? <div>Loading</div> :
 
-    return (
+    
         <div id="dash"  className="container">
             {!arrangementPages || arrangementPages.length == 0 ? <Loading></Loading>:
             <div className="row">
+                <div className="col-12 text-center">
+                    {showAwayMessage && awayMessage}
+                </div>
                 <div className="col-12 p-0">
                     <img className="mainImage" src="https://images.pexels.com/photos/428611/bouquet-roses-colorful-floral-428611.jpeg?w=1260&h=750&auto=compress&cs=tinysrgb" alt="" />
                 </div>
@@ -102,7 +104,6 @@ const Dashboard = () => {
             </div>
             }
         </div>
-    )
     
 }
 

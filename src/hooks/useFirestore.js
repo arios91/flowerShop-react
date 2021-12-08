@@ -10,7 +10,7 @@ const useFirestore = (col) => {
   const itemsPerPage = 12;
 
   let setDocs = (documents, col) => {
-    console.log('firestore - setDocs')
+    console.log(`firestore - setDocs ${col}`);
     if(col === 'addons'){
       setAddons(documents);
     }else if(col === 'arrangements'){
