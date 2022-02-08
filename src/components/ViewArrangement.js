@@ -7,24 +7,20 @@ import Currency from 'react-currency-formatter';
 import Modal from 'react-modal';
 
 const ViewArrangement = () => {
-    const {currentArrangement, addToCart, currentAddons, setCurrentAdddons, away} = useContext(MyContext);
+    const {currentArrangement, addToCart, currentAddons, away} = useContext(MyContext);
     const [redirect,  setRedirect] = useState(false);
     const [totalPrice, setTotalPrice] = useState(0);
     const [orderedBalloons, setOrderedBallons] = useState(false);
 
     let [isModalOpen, setModalOpen] = useState(false);
-    let addonContainerClass = 'imageContainer';
 
-    console.log(away)
+    
 
     useEffect(() => {
         if(!currentArrangement.name){
             setRedirect(true);
         }else{
             setTotalPrice(currentArrangement.price);
-            if(currentAddons.length > 0){
-                addonContainerClass += ' col-' + (12 / currentAddons.length);
-            }
         }
     }, []);
 
@@ -33,9 +29,8 @@ const ViewArrangement = () => {
         return <Redirect to='/'/>
     }
 
-
     let toggleAddon = e => {
-        setCurrentAdddons(currentAddons.map(item => {
+        currentAddons.forEach(item => {
             if(item.name == e.target.name){
                 if(item.inCart){
                     setTotalPrice(totalPrice - item.price);
@@ -49,8 +44,7 @@ const ViewArrangement = () => {
 
                 item.inCart = !item.inCart;
             }
-            return item;
-        }));
+        });
     }
 
     let toCart = (e) => {
@@ -93,7 +87,7 @@ const ViewArrangement = () => {
                                     <div className="row mt-3 ml-0 mr-0 addonContainer">
 
                                         {currentAddons.map(item => (
-                                            <div className={addonContainerClass} key={item.id}>
+                                            <div className={(`imageContainer col-${12/currentAddons.length}`)} key={item.id}>
                                                 <div className="imageContainer">
                                                     <img 
                                                         src={item.imageUrl} 
@@ -130,7 +124,7 @@ const ViewArrangement = () => {
                                 className="btn btn-primary btn-block mt-4"
                                 disabled={away}
                                 onClick={(e => toCart(e))}>
-                                    Add To Cart 2
+                                    Add To Cart
                             </button>
                         </div>
                     </div>

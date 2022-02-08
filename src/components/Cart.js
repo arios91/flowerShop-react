@@ -9,62 +9,98 @@ import { Redirect } from 'react-router';
 
 
 const Cart = () => {
-    const {} = useContext
-    const {cartItems, setCartItems, settings, away} = useContext(MyContext);
+    const taxRate = .0825;
+    const {cartItems, setCart, deliveryZones, settings, away} = useContext(MyContext);
+
     const [redirect,  setRedirect] = useState(false);
     const [isDelivery, setIsDelivery] = useState(true);
-    const [customerPhone, setCustomerPhone] = useState();
-    const [recipientPhone, setRecipientPhone] = useState();
+    const [startDate, setStartDate] = useState(new Date());
+    const [promoCode, setPromoCode] = useState('');
+    const [discountApplied, setDiscountApplied] = useState(false);
+    const [discountAmount, setDiscountAmount] = useState(0);
+    const [subTotal, setSubTotal] = useState(0);
+    const [taxes, setTaxes] = useState(0);
+    const [totalPrice, setTotalPrice] = useState(0);
+    const [deliveryFee, setDeliveryFee] = useState(0);
+    const [deliveryZone, setDeliveryZone] = useState({price: 0});
+    const [customer, setCustomer] = useState({
+        firstName: '',
+        lastName: '',
+        phone: '',
+        email: ''
+    })
+    const [recipient, setRecipient] = useState({
+        firstName: '',
+        lastName: '',
+        phone: ''
+    })
+    const [deliveryAddress, setDeliveryAddress] = useState({
+        address: '',
+        city: '',
+        zip: ''
+    })
+    const [details, setDetails] = useState({
+        cardMessage: '',
+        instructions: ''
+    })
+
+
 
     useEffect(() => {
         if(away){
             setRedirect(true);
         }
-    }, []);
+
+        //grab cutoff time, change startDate if past
+        if(!startDate){
+            setStartDate(new Date());
+        }
+        if(startDate.getHours() >= settings.get('cutoffTime')){
+            let tmpDate = new Date(startDate);
+            tmpDate.setDate(startDate.getDate() + 1);
+            setStartDate(tmpDate)
+        }
+        console.log('in use effect')
+        console.log(cartItems);
+        if(cartItems.length > 0){
+            calculateTotal();
+        }
+    }, [cartItems]);
 
 
     if(redirect){
         return <Redirect to='/'/>
     }
 
+    const calculateTotal = () => {
+        let tmpSubtotal = 0;
+        console.log('calculatingTotal');
+
+        cartItems.forEach(item => {
+            tmpSubtotal += item.price;
+            if(item.productAddons.length > 0){
+                item.productAddons.forEach(addon => {
+                    tmpSubtotal += addon.price;
+                })
+            }
+        })
+
+        setSubTotal(tmpSubtotal);
+        let tmpTaxes = tmpSubtotal * taxRate;
+        setTaxes(tmpTaxes);
+        setTotalPrice(tmpSubtotal + tmpTaxes)
+    }
+
     const setDeliveryDate = date => {
         console.log(date);
     }
 
-
-
-    /* const [startDate, setStartDate] = useState(() => {
-        console.log('start')
-        let daysToAdd = 0
-        let currentDate = new Date();
-        let currentDay = currentDate.getDay();
-        //if sunday
-        if(currentDay == 0){
-            return currentDate.setDate(currentDate.getDate() + 1);
-        }
-        //if after cutoff time
-        let currentHour = currentDate.getHours();
-        let cutoffTime = settings.get('cutoffTime')
-        console.log(currentHour);
-        console.log(cutoffTime);
-        if(currentHour >= cutoffTime){
-            console.log('in here');
-            //if saturday, add 2 to get to monday
-            if(currentDay == 6){
-                daysToAdd = 2;
-            }else{
-                daysToAdd = 1;
-            }
-        }
-    
-        return currentDate.setDate(currentDate.getDate() + daysToAdd);
-    }); */
-
-
     let remove = indexToRemove => {
-        setCartItems(cartItems.filter((item, index) => {
+        let newItems = cartItems.filter((item, index) => {
             return index !== indexToRemove;
-        }));
+        });
+        console.log(newItems);
+        setCart(newItems);
     }
 
     let submitForm = e => {
@@ -73,8 +109,6 @@ const Cart = () => {
     }
 
     let onDeliveryChange = e => {
-        console.log('changed')
-        console.log(e.target.value);
         if(e.target.value === 'pickup'){
             setIsDelivery(false);
         }else{
@@ -82,14 +116,60 @@ const Cart = () => {
         }
     }
 
-    let onPhoneChange = value => {
-
-        console.log(value);
-    }
-
-    const isWeekday = date => {
+    const isDeliveryDay = date => {
         const day = date.getDay(date);
         return day !== 0;
+    }
+
+
+    const handleZipChange = e => {
+        let value = e.target.value;
+        
+        setDeliveryAddress({...deliveryAddress, zip: value});
+        
+        let result = deliveryZones.filter(zone => zone.zips.includes(value));
+        console.log(result)
+        
+        if(result.length > 0){
+            setDeliveryZone(result[0]);
+            setTotalPrice(subTotal + taxes + result[0].price);
+        }else{
+            setDeliveryZone({price: 0});
+            setTotalPrice(subTotal + taxes);
+        }
+    }
+
+    // TO-DO
+    // 1) validate discount code
+    // 2) re-calculate total if validated
+    // 3) Remove discount code from db if used
+    // 4) If user removes promo, re-calculate total
+    const handleDiscountApplied = (e) => {
+        e.preventDefault();
+        if(discountApplied){
+            setDiscountApplied(false);
+            setDiscountAmount(0);
+            calculateTotal();
+            setPromoCode('');
+        }else{
+            if(!promoCode || promoCode.length < 5){
+                alert('please enter valid promo code')
+            }else{
+                setDiscountApplied(true);
+                setDiscountAmount(20);
+                setSubTotal(subTotal - 20);
+            }
+        }
+
+    }
+
+
+    const testClick = (e) => {
+        e.preventDefault();
+        console.log(customer);
+        console.log(recipient);
+        console.log(deliveryAddress);
+        console.log(details);
     }
 
     return (
@@ -136,38 +216,67 @@ const Cart = () => {
                                 <h4>1. Your Info</h4>
                                 <div className="form-group">
                                     <label htmlFor="firstName">First Name</label>
-                                    <input type="text" name="firstName" id="firstNameInput" className='form-control' required/>
-
+                                    <input type="text" 
+                                        name="firstName" 
+                                        id="firstNameInput" 
+                                        className='form-control'
+                                        value={customer.firstName}
+                                        onChange={(e) => setCustomer({...customer, [e.target.name]: e.target.value})}
+                                        required/>
                                 </div>
                                 <div className="form-group">
                                     <label htmlFor="lastName">Last Name</label>
-                                    <input type="text" name="lastName" id="lastNameInput" className='form-control' required/>
+                                    <input type="text" 
+                                        name="lastName" 
+                                        id="lastNameInput" 
+                                        className='form-control' 
+                                        value={customer.lastName}
+                                        onChange={(e) => setCustomer({...customer, [e.target.name]: e.target.value})}
+                                        required/>
                                 </div>
                                 <div className="form-group">
                                     <label htmlFor="phoneNumber">Phone Number</label>
                                     <PhoneInput
-                                        name="phoneNumber"
+                                        name="phone"
                                         country="US"
-                                        value={customerPhone}
+                                        value={customer.phone}
                                         placeholder='(123) 456-7890'
                                         className='form-control'
-                                        onChange={onPhoneChange}
+                                        onChange={(value) => setCustomer({...customer, phone: value})}
                                         rules={{required:true}}/>
                                 </div>
                                 <div className="form-group">
                                     <label htmlFor="email">Email</label>
-                                    <input type="email" name="email" id="emailInput" className='form-control' required/>
+                                    <input type="email" 
+                                        name="email" 
+                                        id="emailInput" 
+                                        className='form-control' 
+                                        value={customer.email}
+                                        onChange={(e) => setCustomer({...customer, [e.target.name]: e.target.value})}
+                                        required/>
                                 </div>
                             </div>
                             <div className="col-12 col-md-6">
                                 <h4>2. Their Info</h4>
                                 <div className="form-group">
-                                    <label htmlFor="recipientName">First Name</label>
-                                    <input type="text" name="recipientName" id="recipientNameInput" className='form-control' required/>
+                                    <label htmlFor="firstName">First Name</label>
+                                    <input type="text" 
+                                        name="firstName" 
+                                        id="recipientNameInput" 
+                                        className='form-control' 
+                                        value={recipient.firstName}
+                                        onChange={(e) => setRecipient({...recipient, [e.target.name]: e.target.value})}
+                                        required/>
                                 </div>
                                 <div className="form-group">
-                                    <label htmlFor="recipientLastName">Last Name</label>
-                                    <input type="text" name="recipientLastName" id="recipientLastNameInput" className='form-control' required/>
+                                    <label htmlFor="lastName">Last Name</label>
+                                    <input type="text" 
+                                        name="lastName"
+                                        id="recipientLastNameInput" 
+                                        className='form-control'
+                                        value={recipient.lastName}
+                                        onChange={(e) => setRecipient({...recipient, [e.target.name]: e.target.value})}
+                                        required/>
                                 </div>
                                 <div className="form-group">
                                     <label htmlFor="recipientPhoneNumber">Phone Number (optional)</label>
@@ -175,8 +284,8 @@ const Cart = () => {
                                         country="US"
                                         className='form-control'
                                         name="recipientPhoneNumber" 
-                                        value={recipientPhone}
-                                        onChange={onPhoneChange}
+                                        value={recipient.phone}
+                                        onChange={(value) => setRecipient({...recipient, phone: value})}
                                         placeholder="(123) 456-7890"/>
                                 </div>
 
@@ -203,29 +312,34 @@ const Cart = () => {
                                         <span>{settings.get('deliveryDateMessage')}</span><br/>
                                         <div className="form-group">
                                             <label htmlFor="deliveryDate">Delivery Date</label>
-                                            <DatePickers
-                                                filterDate={isWeekday}
+                                            <DatePicker
+                                                filterDate={isDeliveryDay}
                                                 minDate={new Date()}
+                                                selected={startDate}
                                                 className='form-control'
                                                 onChange={(date) => setStartDate(date)}/>
                                         </div>
                                         <div className="row">
                                             <div className="form-group col-12">
-                                                <label htmlFor="addressInput">Address</label>
+                                                <label htmlFor="address">Address</label>
                                                 <input 
                                                     type="text" 
                                                     className='form-control' 
-                                                    name="addressInput" 
-                                                    id="addressInputId" 
+                                                    name="address" 
+                                                    id="addressInputId"
+                                                    value={deliveryAddress.address}
+                                                    onChange={(e) => setDeliveryAddress({...deliveryAddress, [e.target.name]: e.target.value})} 
                                                     required/>
                                             </div>
                                             <div className="form-group col-8">
-                                                <label htmlFor="addrCity">City</label>
+                                                <label htmlFor="city">City</label>
                                                 <input 
                                                     type="text" 
-                                                    name="addrCity" 
+                                                    name="city" 
                                                     id="cityInput"
                                                     className='form-control'
+                                                    value={deliveryAddress.city}
+                                                    onChange={(e) => setDeliveryAddress({...deliveryAddress, [e.target.name]: e.target.value})} 
                                                     required/>
                                             </div>
                                             <div className="form-group col-4">
@@ -235,6 +349,8 @@ const Cart = () => {
                                                     name="addrZip" 
                                                     id="zipInput"
                                                     className='form-control'
+                                                    value={deliveryAddress.zip}
+                                                    onChange={handleZipChange}
                                                     required/>
                                             </div>
                                             <div className="form-group col-12">
@@ -243,14 +359,18 @@ const Cart = () => {
                                                     type="text" 
                                                     name="cardMessage" 
                                                     className='form-control'
+                                                    value={details.cardMessage}
+                                                    onChange={(e) => setDetails({...details, [e.target.name]: e.target.value})}
                                                     id="cardMessageInput" />
                                             </div>
                                             <div className="form-group col-12">
-                                                <label htmlFor="specialInstructions">Special Instructions</label>
+                                                <label htmlFor="instructions">Special Instructions</label>
                                                 <input 
                                                     type="text" 
-                                                    name="specialInstructions"
+                                                    name="instructions"
                                                     className='form-control'
+                                                    value={details.instructions}
+                                                    onChange={(e) => setDetails({...details, [e.target.name]: e.target.value})}
                                                     id="specialInstructionsInput" />
                                             </div>
                                         </div>
@@ -263,6 +383,41 @@ const Cart = () => {
                             </div>
 
                         </div>
+                        <div className="row">
+                            <div className="col-12">
+                                <h4>4. Review Summary</h4>
+                            </div>
+                            <div className="col-12 form-group">
+                                <label htmlFor="discountCode" className='mr-2'>Promo Code</label>
+                                <input type="text" 
+                                    name="discountCode" 
+                                    id="discountCodeInput"
+                                    className='mr-2'
+                                    value={promoCode}
+                                    onChange={e => setPromoCode(e.target.value)}/>
+
+                                <button type='button'
+                                    name='discountButton'
+                                    onClick={handleDiscountApplied}
+                                    className={discountApplied ? 'btn btn-outline-danger' : 'btn btn-outline-primary'}>
+                                    {discountApplied ? 'Remove' : 'Apply'}
+                                </button>
+                            </div>
+                            {discountApplied && <div className='col-12'>Discount: <Currency quantity={discountAmount} currency="USD"/></div> }
+                            <div className="col-12">
+                                Subtotal: <Currency quantity={subTotal} currency="USD"/>
+                            </div>
+                            <div className="col-12">
+                                Taxes: <Currency quantity={taxes} currency="USD"/>
+                            </div>
+                            <div className="col-12">
+                                Delivery Fee: <Currency quantity={deliveryZone.price} currency="USD"/>
+                            </div>
+                            <div className="col-12">
+                                Total: <Currency quantity={totalPrice} currency="USD"/>
+                            </div>
+                        </div>
+                        <button className="btn btn-primary" onClick={testClick}>Test</button>
                         <input type="submit" value="Submit"/>
                     </form>
                 </div>

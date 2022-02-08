@@ -9,7 +9,7 @@ import MyContext from '../../Contexts/MyContext';
 const Dashboard = () => {
     const [sortList, setSortList] = useState([]);
     const [currentSort, setCurrentSort] = useState([]);
-    const {arrangementPages, currentPage, setCurrentPage, isLoading, away, awayMessage} = useContext(MyContext);
+    const {arrangementPages, currentPage, handlePageNavigation, isLoading, away, awayMessage} = useContext(MyContext);
 
 
 
@@ -25,18 +25,18 @@ const Dashboard = () => {
         let newPage = e.target.text - 1;
         console.log(newPage)
         if(newPage !== currentPage){
-            setCurrentPage(newPage)
+            handlePageNavigation(newPage)
         }
     }
 
     let onNavButtonClick = (e) => {
         if(e.target.name === 'prevButton'){
             if(currentPage > 0){
-                setCurrentPage(currentPage - 1);
+                handlePageNavigation(currentPage - 1);
             }
         }else if(e.target.name === 'nextButton'){
             if(currentPage < arrangementPages.length - 1){
-                setCurrentPage(currentPage + 1);
+                handlePageNavigation(currentPage + 1);
             }
         }
     }
