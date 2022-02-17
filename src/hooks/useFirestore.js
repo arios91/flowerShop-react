@@ -4,14 +4,13 @@ import { projectFirestore } from '../firebase';
 
 const useFirestore = (col) => {
   
-  const [arrangementPages, setArrangements] = useState([]);
+  const [arrangements, setArrangements] = useState([]);
   const [addons, setAddons] = useState([]);
   const [deliveryZones, setDeliveryZones] = useState([]);
   const [settings, setSettings] = useState(new Map());
   const itemsPerPage = 12;
 
   let setDocs = (documents, col) => {
-    console.log(`firestore - setDocs ${col}`);
     if(col === 'addons'){
       setAddons(documents);
     }else if(col === 'arrangements'){
@@ -28,7 +27,6 @@ const useFirestore = (col) => {
   }
 
   useEffect(() => {
-    console.log('firestore - useEffect')
  
       let collectionRef = collection(projectFirestore, col);
 
@@ -47,14 +45,15 @@ const useFirestore = (col) => {
           let counter = 0;
           let page = [];
           snap.forEach(doc => {
-            if(counter == itemsPerPage){
+            documents.push({...doc.data(), id: doc.id});
+            /* if(counter == itemsPerPage){
               documents.push(page);
               page = [];
               counter =0;
             }else{
               page.push({...doc.data(), id: doc.id});
               counter++
-            }
+            } */
           });
         }
         setDocs(documents, col);
@@ -65,7 +64,7 @@ const useFirestore = (col) => {
     // a component using the hook unmounts
   }, [col]);
 
-  return { arrangementPages, addons, deliveryZones, settings };
+  return { arrangements, addons, deliveryZones, settings };
 }
 
 export default useFirestore;

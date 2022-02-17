@@ -8,7 +8,7 @@ const MyContext = createContext();
 
 export const ContextProvider = ({children}) => {
     /* console.log('context') */
-    const {arrangementPages} = useFirestore('arrangements');
+    const {arrangements} = useFirestore('arrangements');
     const {addons} = useFirestore('addons')
     const {settings} = useFirestore('settings');
     const {deliveryZones} = useFirestore('deliveryZones');
@@ -34,7 +34,7 @@ export const ContextProvider = ({children}) => {
     const [state, dispatch] = useReducer(contextReducer, inititalState);
 
     useEffect(() => {
-        if(settings.size == 0 || addons.length == 0 || arrangementPages.length == 0){
+        if(settings.size == 0 || addons.length == 0 || arrangements.length == 0){
             dispatch({
                 type: 'SET_LOADING',
                 payload: true
@@ -71,7 +71,7 @@ export const ContextProvider = ({children}) => {
                 payload: false
             })
         }
-    }, [settings, arrangementPages, addons, deliveryZones])
+    }, [settings, arrangements, addons, deliveryZones])
 
     const handlePageNavigation = newPage => {
         dispatch({
@@ -130,7 +130,7 @@ export const ContextProvider = ({children}) => {
     return <MyContext.Provider value = {{
         ...state,
         settings,
-        arrangementPages,
+        arrangements,
         addons,
         deliveryZones,
         settings,
