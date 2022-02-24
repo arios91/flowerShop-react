@@ -14,13 +14,6 @@ export const ContextProvider = ({children}) => {
     const {deliveryZones} = useFirestore('deliveryZones');
     
     
-    /* const [cartItems, setCartItems] = useState([]);
-    const [isLoading, setIsLoading] = useState(true);
-    const [currentPage, setCurrentPage] = useState(0);
-    const [currentArrangement, setCurrentArrangement] = useState({});
-    const [currentAddons, setCurrentAdddons] = useState([])
-    const [awayMessage, setAwayMessage] = useState('');
-    const [away, setAway] = useState(false) */
     const inititalState = {
         cartItems: [],
         currentPage: 0,
@@ -144,25 +137,3 @@ export const ContextProvider = ({children}) => {
 }
 
 export default MyContext
-
-
-/*
-...state,
-        settings,
-        cartItems,
-        arrangementPages,
-        addons,
-        deliveryZones,
-        settings,
-        currentPage,
-        isLoading,
-        setCurrentPage,
-        currentArrangement,
-        setCurrentArrangement,
-        handleArrangementSelect,
-        currentAddons,
-        setCurrentAdddons,
-        addToCart,
-        setCartItems,
-        awayMessage,
-        away*/

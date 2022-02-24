@@ -6,11 +6,19 @@ import PhoneInput from 'react-phone-number-input/input'
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { Redirect } from 'react-router';
+import axios from 'axios';
+import { loadStripe } from "@stripe/stripe-js";
+import { Elements } from "@stripe/react-stripe-js";
+import CheckoutForm from './cart/CheckoutForm';
+import {Modal, Container, Row, Col} from 'react-bootstrap';
+import flower from '../assets/flower.png'
 
 
 const Cart = () => {
     const taxRate = .0825;
     const {cartItems, setCart, deliveryZones, settings, away} = useContext(MyContext);
+    const promise = loadStripe('pk_test_Mqk5tVgm8NXvt81KUk3iigKo')
+    const [show, setShow] = useState(false);
 
     const [redirect,  setRedirect] = useState(false);
     const [isDelivery, setIsDelivery] = useState(true);
@@ -72,6 +80,8 @@ const Cart = () => {
         return <Redirect to='/'/>
     }
 
+    const handleClose = () => setShow(false);
+
     const calculateTotal = () => {
         let tmpSubtotal = 0;
         console.log('calculatingTotal');
@@ -103,9 +113,10 @@ const Cart = () => {
         setCart(newItems);
     }
 
-    let submitForm = e => {
+    let submitForm = async(e) => {
         e.preventDefault();
         console.log('submit form');
+        setShow(true);
     }
 
     let onDeliveryChange = e => {
@@ -383,44 +394,78 @@ const Cart = () => {
                             </div>
 
                         </div>
-                        <div className="row">
+                        <div className="row mt-3">
                             <div className="col-12">
                                 <h4>4. Review Summary</h4>
                             </div>
-                            <div className="col-12 form-group">
-                                <label htmlFor="discountCode" className='mr-2'>Promo Code</label>
-                                <input type="text" 
-                                    name="discountCode" 
-                                    id="discountCodeInput"
-                                    className='mr-2'
-                                    value={promoCode}
-                                    onChange={e => setPromoCode(e.target.value)}/>
+                            <div className="col-12 formContainer">
+                                <div className="col-12 form-group">
+                                    <label htmlFor="discountCode" className='mr-2'>Promo Code</label>
+                                    <input type="text" 
+                                        name="discountCode" 
+                                        id="discountCodeInput"
+                                        className='mr-2'
+                                        value={promoCode}
+                                        onChange={e => setPromoCode(e.target.value)}/>
 
-                                <button type='button'
-                                    name='discountButton'
-                                    onClick={handleDiscountApplied}
-                                    className={discountApplied ? 'btn btn-outline-danger' : 'btn btn-outline-primary'}>
-                                    {discountApplied ? 'Remove' : 'Apply'}
-                                </button>
-                            </div>
-                            {discountApplied && <div className='col-12'>Discount: <Currency quantity={discountAmount} currency="USD"/></div> }
-                            <div className="col-12">
-                                Subtotal: <Currency quantity={subTotal} currency="USD"/>
-                            </div>
-                            <div className="col-12">
-                                Taxes: <Currency quantity={taxes} currency="USD"/>
-                            </div>
-                            <div className="col-12">
-                                Delivery Fee: <Currency quantity={deliveryZone.price} currency="USD"/>
-                            </div>
-                            <div className="col-12">
-                                Total: <Currency quantity={totalPrice} currency="USD"/>
+                                    <button type='button'
+                                        name='discountButton'
+                                        onClick={handleDiscountApplied}
+                                        className={discountApplied ? 'btn btn-outline-danger' : 'btn btn-outline-primary'}>
+                                        {discountApplied ? 'Remove' : 'Apply'}
+                                    </button>
+                                </div>
+                                {discountApplied && <div className='col-12'>Discount: <Currency quantity={discountAmount} currency="USD"/></div> }
+                                <div className="col-12">
+                                    Subtotal: <Currency quantity={subTotal} currency="USD"/>
+                                </div>
+                                <div className="col-12">
+                                    Taxes: <Currency quantity={taxes} currency="USD"/>
+                                </div>
+                                <div className="col-12">
+                                    Delivery Fee: <Currency quantity={deliveryZone.price} currency="USD"/>
+                                </div>
+                                <div className="col-12">
+                                    Total: <Currency quantity={totalPrice} currency="USD"/>
+                                </div>
                             </div>
                         </div>
-                        <button className="btn btn-primary" onClick={testClick}>Test</button>
-                        <input type="submit" value="Submit"/>
+                        <input type="submit" value="Submit" className='btn btn-primary w-100 mt-2 mb-2'/>
                     </form>
                 </div>
+                <Modal show={show} onHide={handleClose} centered className='paymentModal mainModal text-center'>
+                    <Modal.Body className='paymentModal modalBody px-0'>
+                        <Container className='paymentModal modalContainer'>
+                            <Row>
+                                <Col xs={12} className='modal-title'>
+                                    <Col>
+                                        <div className="modalImage">
+                                            <img src={flower}/>
+                                        </div>
+                                    </Col>
+                                    <Col className='modalHeader'>
+                                        Petalos y Arte Flower Shop
+                                    </Col>
+                                    <Col>
+                                        {cartItems.map((item,index) => (
+                                            <div>
+                                                {item.name}
+                                            </div>
+                                        ))}
+                                    </Col>
+                                </Col>
+                                <Col xs={12} className='modal-email py-1'>
+                                    {customer.email}
+                                </Col>
+                                <Col xs={12} className='pt-4'>
+                                    <Elements stripe={promise}>
+                                        <CheckoutForm totalPrice={totalPrice}/>
+                                    </Elements>
+                                </Col>
+                            </Row>
+                        </Container>
+                    </Modal.Body>
+                </Modal>
             </Fragment>
             }
         </div>
@@ -428,15 +473,3 @@ const Cart = () => {
 }
 
 export default Cart
-
-
-/*
-
-                                    <input 
-                                        type="tel" 
-                                        name="phoneNumber" 
-                                        id="phoneNumberInput" 
-                                        className='form-control' 
-                                        placeholder="(123) 456-7890"
-                                        pattern="\(\d{3}\) \d{3}-\d{4}"
-                                        required/>*/
