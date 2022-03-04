@@ -17,7 +17,7 @@ const Header = () => {
         <div id="header"  className="container text-center">
             <div className="row headerRow">
                 <div className="col-3 headerSubscript">Locally owned flower shop in Palview, TX</div>
-                <div className="col-6 headerMain">Pétalos y Are</div>
+                <div className="col-6 headerMain">Pétalos y Arte</div>
                 <div className="col-3 headerSubscript">Providing same day flower delivery for the valley</div>
             </div>
             <div className="row headerRow">
