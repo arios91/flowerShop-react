@@ -70,13 +70,13 @@ const ViewArrangement = () => {
         <div className="container">
             
             <div className="row">
-                <div className="col-12 col-lg-6 p-0">
+                <div className="col-12 col-md-6 col-lg-6 p-0">
                     <img
                         className='w-100' 
                         src={currentArrangement.imageUrl} 
                         alt={currentArrangement.name} />
                 </div>
-                <div className="col-12 col-lg-6 p-0">
+                <div className="col-12 col-md-6 col-lg-6 p-0">
                     <div className="card border-0">
                         <div className="card-body text-center">
                             <h1>{currentArrangement.name}</h1> <h4><Currency quantity={totalPrice} currency="USD"/></h4>
@@ -93,7 +93,7 @@ const ViewArrangement = () => {
                                                         src={item.imageUrl} 
                                                         alt={item.name} 
                                                         className="card-img-top"
-                                                        height="130"/>
+                                                        height="90"/>
                                                 </div>
                                                 <div className="card-body addonDescription">
                                                     <span>{item.description}</span><br/>

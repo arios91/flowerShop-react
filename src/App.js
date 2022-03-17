@@ -6,6 +6,7 @@ import Dashboard from './components/dashboard/Dashboard';
 import './App.css';
 import {ContextProvider} from './Contexts/MyContext'
 import ViewArrangement from './components/ViewArrangement';
+import Navbar from './components/Navbar';
 
 const App = () => {
 
@@ -14,6 +15,7 @@ const App = () => {
       <Router>
         <div className="App">
           <Header/>
+          <Navbar/>
           <Switch>
             <Route exact path="/" component={Dashboard}/>
             <Route exact path="/cart" component={Cart}/>
