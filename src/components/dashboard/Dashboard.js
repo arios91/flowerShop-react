@@ -82,10 +82,10 @@ const Dashboard = () => {
                 <div className="col-12 text-center">
                     {away && awayMessage}
                 </div>
-                <div className="col-12 p-0">
+                <div className="col-12">
                     <img className="mainImage" src="https://images.pexels.com/photos/428611/bouquet-roses-colorful-floral-428611.jpeg?w=1260&h=750&auto=compress&cs=tinysrgb" alt="" />
                 </div>
-                <div className="col-12 py-5 p-0">
+                <div className="col-12 py-5">
                     <div className="row">
                         <div className="col-12 col-lg-6 sortContainer">
                             Sort By:&nbsp;

@@ -5,6 +5,13 @@
 
 .headerSubscript{
     color: #7f7f7f;
+    line-height: 90px;
+}
+
+.headerSubscript > span {
+  line-height: 1;
+  vertical-align: middle;
+  display: inline-block;
 }
 
 .headerRow{
