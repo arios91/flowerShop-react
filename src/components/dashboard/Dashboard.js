@@ -118,6 +118,20 @@ const Dashboard = () => {
                             </div>
                         ))}
                     </div>
+
+                    <div className="row text-center">
+                        <div className="col-12 ">
+                            <ul className='pagination'>
+                                <li className={currentPage == 0 ? 'pageItem disabled' : 'pageItem'}>
+                                    <a name='prevButton' className='pageLink' onClick={onNavButtonClick}>Previous</a>
+                                </li>
+                                {pageButtons}
+                                <li className={currentPage == arrangementPages.length-1 ? 'pageItem disabled' :'pageItem'}>
+                                    <a name='nextButton' className='pageLink' onClick={onNavButtonClick}>Next</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
                 </div>
             </div>
             }

@@ -22,6 +22,15 @@
     border-top: 2px solid black;
 }
 
+.footer > div > a {
+  text-decoration: none;
+}
+
+.footer > div > a:hover{
+  text-decoration: underline;
+  color: #0056b3
+}
+
 .mainImage{
     width: 100%;
     height: 450px;
@@ -35,6 +44,7 @@
     color: #495057;
     border-radius: 0.25rem;
     vertical-align: middle;
+    display: inline-block;
 }
 
 .pagination{
