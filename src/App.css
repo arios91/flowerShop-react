@@ -110,6 +110,7 @@
     left: 0;
     text-align: center;
     width: 100%;
+    position: absolute;
 }
 
 .w-130{

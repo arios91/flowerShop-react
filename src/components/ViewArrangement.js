@@ -63,6 +63,10 @@ const ViewArrangement = () => {
             bottom: 'auto',
             marginRight: '-50%',
             transform: 'translate(-50%, -50%)',
+            overflow: 'none',
+            borderRadius: '10px',
+            minWidth: '40%',
+            padding: '0'
           },
     }
 
@@ -77,23 +81,23 @@ const ViewArrangement = () => {
                         alt={currentArrangement.name} />
                 </div>
                 <div className="col-12 col-md-6 col-lg-6 p-0">
-                    <div className="card border-0">
+                    <div className="card border-0 h-100">
                         <div className="card-body text-center">
                             <h1>{currentArrangement.name}</h1> <h4><Currency quantity={totalPrice} currency="USD"/></h4>
                             <span>{currentArrangement.longDescription}</span>
                             {currentAddons.length > 0 ? 
                                 <div className='pt-4'>
                                     <h3>Make it Special!</h3>
-                                    <div className="row mt-3 ml-0 mr-0 addonContainer">
+                                    <div className="row mt-3 mx-0 addonContainer">
 
                                         {currentAddons.map(item => (
-                                            <div className={(`imageContainer col-${12/currentAddons.length}`)} key={item.id}>
+                                            <div className={(`col-${12/currentAddons.length} card p-0`)} key={item.id}>
                                                 <div className="imageContainer">
                                                     <img 
                                                         src={item.imageUrl} 
                                                         alt={item.name} 
                                                         className="card-img-top"
-                                                        height="90"/>
+                                                        height="130"/>
                                                 </div>
                                                 <div className="card-body addonDescription">
                                                     <span>{item.description}</span><br/>
@@ -121,7 +125,7 @@ const ViewArrangement = () => {
 
                             <button 
                                 data-bs-toggle="modal" data-bs-target="#exampleModal"
-                                className="btn btn-primary btn-block mt-4"
+                                className="btn btn-primary btn-block mt-4 w-100"
                                 disabled={away}
                                 onClick={(e => toCart(e))}>
                                     Add To Cart
@@ -134,19 +138,20 @@ const ViewArrangement = () => {
                 ariaHideApp={false}
                 isOpen={isModalOpen}
                 style={modalStyle}>
-                <div className="container m-3 text-center">
-                    <div className="row mb-2">
-                        <div className="col-12">
+                <div className="container text-center p-0">
+                    <div className="row my-2 text-center text-md-start">
+                        <div className="col-12 mx-0 mx-md-3">
                             Successfully Added to Cart!
                         </div>
                     </div>
-                    <div className="row">
+                    <hr></hr>
+                    <div className="row mb-3 text-right">
                         <div className="col-12">
-                            <Link className="btn btn-secondary"
+                            <Link className="btn btn-secondary mx-2"
                                 to='/'>
                                 Continue Shopping
                             </Link>
-                            <Link className="btn btn-primary" 
+                            <Link className="btn btn-primary mx-2" 
                                 to='/cart'>
                                 Go To Cart
                             </Link>

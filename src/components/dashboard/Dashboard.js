@@ -86,8 +86,8 @@ const Dashboard = () => {
                     <img className="mainImage" src="https://images.pexels.com/photos/428611/bouquet-roses-colorful-floral-428611.jpeg?w=1260&h=750&auto=compress&cs=tinysrgb" alt="" />
                 </div>
                 <div className="col-12 py-5">
-                    <div className="row">
-                        <div className="col-12 col-lg-6 sortContainer">
+                    <div className="row mb-3 mb-md-0">
+                        <div className="col-12 text-end text-md-start">
                             Sort By:&nbsp;
                             <select className='form-select custom-select' onChange={e => setCurrentSort(e.target.value)}>
                                 {sortList.map(sort => (
