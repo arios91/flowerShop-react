@@ -1,4 +1,4 @@
-import {BrowserRouter as Router, Route, Switch} from 'react-router-dom'; 
+import {BrowserRouter as Router, Route, Routes} from 'react-router-dom'; 
 import Footer from './components/Footer';
 import Header from './components/Header';
 import Cart from './components/Cart';
@@ -7,6 +7,7 @@ import './App.css';
 import {ContextProvider} from './Contexts/MyContext'
 import ViewArrangement from './components/ViewArrangement';
 import Navbar from './components/Navbar';
+import Receipt from './components/cart/Receipt';
 
 const App = () => {
 
@@ -16,11 +17,12 @@ const App = () => {
         <div className="App">
           <Header/>
           <Navbar/>
-          <Switch>
-            <Route exact path="/" component={Dashboard}/>
-            <Route exact path="/cart" component={Cart}/>
-            <Route exact path="/viewProduct" component={ViewArrangement}/>
-          </Switch>
+          <Routes>
+            <Route exact path="/" element={<Dashboard/>}/>
+            <Route exact path="/cart" element={<Cart/>}/>
+            <Route exact path="/viewProduct" element={<ViewArrangement/>}/>
+            <Route exact path="/receipt" element={<Receipt/>}/>
+          </Routes>
           <Footer/>
         </div>
       </Router>

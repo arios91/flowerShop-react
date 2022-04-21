@@ -11,6 +11,7 @@ export const ContextProvider = ({children}) => {
     const {arrangements} = useFirestore('arrangements');
     const {addons} = useFirestore('addons')
     const {settings} = useFirestore('settings');
+    const {discounts} = useFirestore('discounts');
     const {deliveryZones} = useFirestore('deliveryZones');
     
     
@@ -64,7 +65,7 @@ export const ContextProvider = ({children}) => {
                 payload: false
             })
         }
-    }, [settings, arrangements, addons, deliveryZones])
+    }, [settings, arrangements, addons, deliveryZones, discounts])
 
     const handlePageNavigation = newPage => {
         dispatch({
@@ -127,6 +128,7 @@ export const ContextProvider = ({children}) => {
         addons,
         deliveryZones,
         settings,
+        discounts,
         handlePageNavigation,
         handleArrangementSelect,
         addToCart,

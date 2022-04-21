@@ -2,7 +2,7 @@ import {Link} from 'react-router-dom'
 
 const Navbar = () => {
     return (
-        <div className="container mb-3 headerRow mx-3">
+        <div className="container mb-3 headerRow">
             <nav className="navbar navbar-expand-sm navbar-light">
                 <div className="container-fluid">
                     <a className="navbar-brand" href="#"></a>

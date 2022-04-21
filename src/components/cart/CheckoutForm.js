@@ -7,7 +7,7 @@ import {
     useElements
   } from "@stripe/react-stripe-js";
 
-function CheckoutForm({totalPrice}) {
+function CheckoutForm({totalPrice, checkoutSuccess}) {
     const [succeeded, setSucceeded] = useState(false);
     const [error, setError] = useState(null);
     const [processing, setProcessing] = useState('');
@@ -17,6 +17,8 @@ function CheckoutForm({totalPrice}) {
     const elements = useElements();
 
     useEffect(() => {
+      console.log(JSON.stringify({totalPrice}))
+      console.log(typeof(totalPrice));
         window
             .fetch('http://localhost:8080/petalosarte/charge', {
                 method: 'POST',
@@ -24,6 +26,9 @@ function CheckoutForm({totalPrice}) {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({totalPrice})
+            })
+            .catch(err => {
+              console.log(err);
             })
             .then(res => {
                 console.log('step 1');
@@ -63,7 +68,6 @@ function CheckoutForm({totalPrice}) {
       };
 
 
-
       const handleSubmit = async ev => {
         ev.preventDefault();
         console.log('handling payment');
@@ -79,16 +83,19 @@ function CheckoutForm({totalPrice}) {
         if (payload.error) {
             console.log('error');
             console.log(payload.error.message)
-          setError(`Payment failed ${payload.error.message}`);
+          setError(`Payment failed test`);
           setProcessing(false);
         } else {
             console.log('success');
           setError(null);
           setProcessing(false);
           setSucceeded(true);
-          //redirect to receipt
+          setTimeout(() => {checkoutSuccess(payload)}, 2000);
         }
       };
+
+
+      
 
 
     return (
@@ -114,7 +121,7 @@ function CheckoutForm({totalPrice}) {
                 {error && <div className="card-error" role="alert">{error}</div> }
                 {/* Show a success message upon completion */}
                 <p className={succeeded ? "result-message" : "result-message hidden"}>
-                    Payment succeeded
+                    Payment succeeded, redirecting you to your receipt
                 </p>
             </form>
         </Fragment>
@@ -122,7 +129,8 @@ function CheckoutForm({totalPrice}) {
 }
 
 CheckoutForm.propTypes = {
-    totalPrice: PropTypes.number
+    totalPrice: PropTypes.number,
+    checkoutSuccess: PropTypes.func
 }
 
 export default CheckoutForm

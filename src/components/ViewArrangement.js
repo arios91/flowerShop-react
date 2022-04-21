@@ -2,15 +2,17 @@ import React, { Fragment } from 'react'
 import {useContext, useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import MyContext from '../Contexts/MyContext';
-import { Redirect } from 'react-router-dom';
+
 import Currency from 'react-currency-formatter';
 import Modal from 'react-modal';
+import { useNavigate } from 'react-router-dom';
 
 const ViewArrangement = () => {
     const {currentArrangement, addToCart, currentAddons, away} = useContext(MyContext);
     const [redirect,  setRedirect] = useState(false);
     const [totalPrice, setTotalPrice] = useState(0);
     const [orderedBalloons, setOrderedBallons] = useState(false);
+    const navigate = useNavigate();
 
     let [isModalOpen, setModalOpen] = useState(false);
 
@@ -26,7 +28,7 @@ const ViewArrangement = () => {
 
 
     if(redirect){
-        return <Redirect to='/'/>
+        navigate('/');
     }
 
     let toggleAddon = e => {

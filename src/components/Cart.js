@@ -5,25 +5,33 @@ import MyContext from '../Contexts/MyContext';
 import PhoneInput from 'react-phone-number-input/input'
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import { Redirect } from 'react-router';
+
 import axios from 'axios';
 import { loadStripe } from "@stripe/stripe-js";
 import { Elements } from "@stripe/react-stripe-js";
 import CheckoutForm from './cart/CheckoutForm';
 import {Modal, Container, Row, Col} from 'react-bootstrap';
 import flower from '../assets/flower.png'
+import { useNavigate } from 'react-router-dom';
 
-
+//TO-DO
+//- send email
+//- move axios calls to own file
+//- move html builder functions to helper file if possible
+//- finish pickup options (select date, maybe time)
 const Cart = () => {
     const taxRate = .0825;
-    const {cartItems, setCart, deliveryZones, settings, away} = useContext(MyContext);
+    const discountChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    const {cartItems, setCart, deliveryZones, settings, discounts, away} = useContext(MyContext);
     const promise = loadStripe('pk_test_Mqk5tVgm8NXvt81KUk3iigKo')
     const [show, setShow] = useState(false);
+    const navigate = useNavigate();
 
     const [redirect,  setRedirect] = useState(false);
     const [isDelivery, setIsDelivery] = useState(true);
-    const [startDate, setStartDate] = useState(new Date());
-    const [promoCode, setPromoCode] = useState('');
+    const [deliveryDate, setDeliveryDate] = useState(new Date());
+    const [promoCode, setPromoCode] = useState({});
+    const [discountCode, setDiscountCode] = useState('');
     const [discountApplied, setDiscountApplied] = useState(false);
     const [discountAmount, setDiscountAmount] = useState(0);
     const [subTotal, setSubTotal] = useState(0);
@@ -51,6 +59,9 @@ const Cart = () => {
         cardMessage: '',
         instructions: ''
     })
+    const [receipt, setReceipt] = useState('');
+    const [sendToReceipt, setSendToReceipt] = useState(false);
+    const [orderEmail, setOrderEmail] = useState('');
 
 
 
@@ -59,32 +70,240 @@ const Cart = () => {
             setRedirect(true);
         }
 
+
+
+        if(sendToReceipt){
+            console.log('sending to receipt')
+            setCart([])
+            navigate('/receipt', {state: {receipt}});
+        }
+
         //grab cutoff time, change startDate if past
-        if(!startDate){
-            setStartDate(new Date());
+        if(!deliveryDate){
+            setDeliveryDate(new Date());
         }
-        if(startDate.getHours() >= settings.get('cutoffTime')){
-            let tmpDate = new Date(startDate);
-            tmpDate.setDate(startDate.getDate() + 1);
-            setStartDate(tmpDate)
+        if(deliveryDate.getHours() >= settings.get('cutoffTime')){
+            let tmpDate = new Date(deliveryDate);
+            tmpDate.setDate(deliveryDate.getDate() + 1);
+            setDeliveryDate(tmpDate)
         }
-        console.log('in use effect')
-        console.log(cartItems);
+
         if(cartItems.length > 0){
             calculateTotal();
         }
-    }, [cartItems]);
+    }, [cartItems, sendToReceipt, discountApplied]);
 
 
     if(redirect){
-        return <Redirect to='/'/>
+        navigate('/')
     }
 
+    const checkoutSuccess = (payload) => {
+        console.log('checkoutSuccess');
+        setShow(false);
+
+        buildReceiptandOrderEmail(payload.paymentIntent);
+
+        if(discountApplied){
+            axios.post(`http://localhost:8080/petalosarte/removeDiscountCode/${promoCode.id}`);
+        }
+        
+        cartItems.forEach(item => {
+            console.log(item);
+            axios.post(`http://localhost:8080/petalosarte/incrementPopularity/${item.id}`);
+        })
+
+        setSendToReceipt(true);
+    }
+
+    const buildReceiptandOrderEmail = (paymentIntent) => {
+        let receipt = getDeliveryDateInfo();
+        let orderEmail = getDeliveryDateInfo();
+
+        receipt += getDeliveryPersonInfo();
+        orderEmail += getDeliveryPersonInfo();
+
+        orderEmail += getContactPersonInfo();
+        
+        receipt += getOrderInfo();
+        orderEmail += getOrderInfo();
+        
+        if(details.cardMessage !== '' || details.instructions !== ''){
+            receipt += getAdditionalInfo();
+            orderEmail += getAdditionalInfo();
+        }
+        
+        receipt += getDiscountInfo();
+
+        receipt += closeTable(paymentIntent.id);
+        orderEmail += closeTable(paymentIntent.id);
+
+        setReceipt(receipt);
+        setOrderEmail(orderEmail);
+    }
+
+
+    const getDeliveryDateInfo = () => {
+        console.log(deliveryDate.date)
+        let deliveryDateInfo = `
+        <table style="width: 90%;" align="center">
+        <tr>
+        <td style="width: 35%; text-align:right; font-weight: bold;">${isDelivery ? 'Delivery' : 'Pickup'} Date:</td>
+        <td style="width: 65%; text-align:left; padding-left: 25px;">${deliveryDate.getMonth() + 1}/${deliveryDate.getDate()}/${deliveryDate.getFullYear()}</td>
+        
+        </tr>`;
+
+
+        return deliveryDateInfo;
+    }
+
+    const getDeliveryPersonInfo = () => {
+        let deliveryInfo = `
+        <tr>
+            <td style="width: 35%; text-align:right; font-weight: bold;">${isDelivery ? 'Deliver To' : 'For'}:</td>
+            <td style="width: 65%; text-align:left; padding-left: 25px;">${recipient.firstName} ${recipient.lastName}</td>
+        </tr>`;
+
+        if(isDelivery){
+            deliveryInfo += `
+            <tr>
+                <td style="width: 35%; text-align:right; font-weight: bold;">Street Address:</td>
+                <td style="width: 65%; text-align:left; padding-left: 25px;">${deliveryAddress.address}</td>
+            </tr>
+            <tr>
+                <td style="width: 35%; text-align:right; font-weight: bold;">City, State, Zip:</td>
+                <td style="width: 65%; text-align:left; padding-left: 25px;">${deliveryAddress.city}, TX ${deliveryAddress.zip}</td>
+            </tr>`
+        }
+
+        deliveryInfo += `
+        <tr>
+            <td style="width: 35%; text-align:right; font-weight: bold;">Phone:</td>
+            <td style="width: 65%; text-align:left; padding-left: 25px;">${recipient.phone}</td>
+        </tr>`;
+
+        return deliveryInfo;
+    }
+
+    const getContactPersonInfo = () => {
+        let contactInfo = 
+        `<tr>
+            <td>
+                <br/>
+            </td>
+        </tr>
+        
+        <tr>
+            <td style="width: 35%; text-align:right; font-weight: bold;">Customer Name:</td>
+            <td style="width: 65%; text-align:left; padding-left: 25px;">${customer.firstName} ${customer.lastName}</td>
+        </tr>
+        <tr>
+            <td style="width: 35%; text-align:right; font-weight: bold;">Customer Phone:</td>
+            <td style="width: 65%; text-align:left; padding-left: 25px;">${customer.phone}</td>
+        </tr>
+        <tr>
+            <td style="width: 35%; text-align:right; font-weight: bold;">Customer Email:</td>
+            <td style="width: 65%; text-align:left; padding-left: 25px;">${customer.email}</td>
+        </tr>
+        
+        <tr>
+            <td>
+                <br/>
+            </td>
+        </tr>`;
+
+        return contactInfo;
+    }
+
+    const getOrderInfo = () => {
+        let orderInfo = '';
+
+        for(let product of cartItems){
+            orderInfo += `
+            <tr>
+                <td style="width: 35%; text-align:right; font-weight: bold;">Product Details:</td>
+                <td style="width: 65%; text-align:left; padding-left: 25px;">${product.name}</td>
+            </tr>`
+            for(let addon of product.productAddons){
+                orderInfo += `
+                <tr>
+                  <td style="width: 35%; text-align:right; font-weight: bold;">Addons:</td>
+                  <td style="width: 65%; text-align:left; padding-left: 25px;">${addon.name}</td>
+                </tr>`;
+              }
+        }
+
+        return orderInfo;
+    }
+
+    const getAdditionalInfo = () => {
+        let info = 
+        `<tr>
+          <td>
+            <br/>
+          </td>
+        </tr>
+        ${details.cardMessage !== '' ? `
+        <tr>
+          <td style="width: 35%; text-align:right; font-weight: bold;">Card Message:</td>
+          <td style="width: 65%; text-align:left; padding-left: 25px;">${details.cardMessage}</td>
+        </tr>`: ``}
+        ${details.instructions !== '' ? `
+        <tr>
+            <td style="width: 35%; text-align:right; font-weight: bold;">Special Instructions:</td>
+            <td style="width: 65%; text-align:left; padding-left: 25px;">${details.instructions}</td>
+        </tr>`: ``}`;
+
+        return info;
+    }
+
+    const getDiscountInfo = () => {
+        let discountCode = '';
+        let discountAmount = 0;
+
+        for (var i = 0; i < 7; i++){
+            discountCode += discountChars.charAt(Math.floor(Math.random() * discountChars.length));
+        }
+
+        if(totalPrice > 149){
+            discountAmount = 15;
+        }else if(totalPrice > 99){
+            discountAmount = 10;
+        }else if(totalPrice){
+            discountAmount = 5;
+        }
+
+        axios.post('http://localhost:8080/petalosarte/createDiscountCode', {discountCode, discountAmount});
+
+        let discountInfo = `
+        <tr>
+          <td>
+            <br/>
+          </td>
+        </tr>
+        <tr>
+          <td style="width: 35%; text-align:right; font-weight: bold;">${discountAmount}% Discount Code:</td>
+          <td style="width: 65%; text-align:left; padding-left: 25px;">${discountCode}</td>
+        </tr>`;
+
+        return discountInfo;
+    }
+    
+    const closeTable = (paymentIntent) => {
+        var cardToken = paymentIntent.substring(paymentIntent.length - 6, paymentIntent.length);
+        let info = `
+        <tr>
+        <td style="width: 35%; font-weight: bold; text-align:right;">Confirmation Code:</td>
+        <td style="width: 65%; text-align:left; padding-left: 25px;">${cardToken}</td>
+        </tr>
+        </table>`
+        return info;
+
+    }
     const handleClose = () => setShow(false);
 
     const calculateTotal = () => {
         let tmpSubtotal = 0;
-        console.log('calculatingTotal');
 
         cartItems.forEach(item => {
             tmpSubtotal += item.price;
@@ -95,14 +314,44 @@ const Cart = () => {
             }
         })
 
+        if(discountApplied){
+            let discountAmount = tmpSubtotal * (promoCode.discountAmount / 100);
+            console.log(discountAmount);
+            setDiscountAmount(discountAmount)
+            tmpSubtotal = tmpSubtotal - discountAmount;
+            console.log(tmpSubtotal)
+        }
+
+
         setSubTotal(tmpSubtotal);
+
         let tmpTaxes = tmpSubtotal * taxRate;
         setTaxes(tmpTaxes);
-        setTotalPrice(tmpSubtotal + tmpTaxes)
+        
+        setTotalPrice(Math.round(((tmpSubtotal + tmpTaxes) + Number.EPSILON) * 100) / 100)
     }
 
-    const setDeliveryDate = date => {
-        console.log(date);
+    const handleDiscountApplied = (e) => {
+        e.preventDefault();
+        if(discountApplied){
+            setDiscountCode('');
+            setPromoCode({});
+            setDiscountApplied(false);
+        }else{
+            if(!promoCode || promoCode.length < 5){
+                alert('please enter valid promo code')
+            }else{
+                let tmpDiscount = discounts.filter(discount => discount.discountCode === discountCode);
+                if(tmpDiscount.length > 0){
+                    tmpDiscount = tmpDiscount[0];
+                    setPromoCode(tmpDiscount);
+                    setDiscountApplied(true)
+                }else{
+                    alert('Please enter a valid promo code');
+                }
+            }
+        }
+
     }
 
     let remove = indexToRemove => {
@@ -115,8 +364,27 @@ const Cart = () => {
 
     let submitForm = async(e) => {
         e.preventDefault();
-        console.log('submit form');
-        setShow(true);
+
+        //zip validation
+        let validZip = false;
+        for(let zone of deliveryZones){
+            if(zone.active){
+                for(let zip of zone.zips){
+                    if(zip == deliveryAddress.zip){
+                        validZip = true;
+                    }
+                }
+            }
+            if(validZip){
+                break;
+            }
+        }
+
+        if(validZip){
+            setShow(true);
+        }else{
+            alert('We are currently not servicing the delivery zip code you input, thank you for your understanding.')
+        }
     }
 
     let onDeliveryChange = e => {
@@ -143,44 +411,20 @@ const Cart = () => {
         
         if(result.length > 0){
             setDeliveryZone(result[0]);
-            setTotalPrice(subTotal + taxes + result[0].price);
+            setTotalPrice(Math.round(((subTotal + taxes + result[0].price) + Number.EPSILON) * 100) / 100)
         }else{
             setDeliveryZone({price: 0});
-            setTotalPrice(subTotal + taxes);
+            setTotalPrice(Math.round(((subTotal + taxes) + Number.EPSILON) * 100) / 100)
         }
     }
 
-    // TO-DO
-    // 1) validate discount code
-    // 2) re-calculate total if validated
-    // 3) Remove discount code from db if used
-    // 4) If user removes promo, re-calculate total
-    const handleDiscountApplied = (e) => {
+    
+
+
+    const testClick = async(e) => {
         e.preventDefault();
-        if(discountApplied){
-            setDiscountApplied(false);
-            setDiscountAmount(0);
-            calculateTotal();
-            setPromoCode('');
-        }else{
-            if(!promoCode || promoCode.length < 5){
-                alert('please enter valid promo code')
-            }else{
-                setDiscountApplied(true);
-                setDiscountAmount(20);
-                setSubTotal(subTotal - 20);
-            }
-        }
+        console.log(discounts);
 
-    }
-
-
-    const testClick = (e) => {
-        e.preventDefault();
-        console.log(customer);
-        console.log(recipient);
-        console.log(deliveryAddress);
-        console.log(details);
     }
 
     return (
@@ -326,9 +570,9 @@ const Cart = () => {
                                             <DatePicker
                                                 filterDate={isDeliveryDay}
                                                 minDate={new Date()}
-                                                selected={startDate}
+                                                selected={deliveryDate}
                                                 className='form-control'
-                                                onChange={(date) => setStartDate(date)}/>
+                                                onChange={(date) => setDeliveryDate(date)}/>
                                         </div>
                                         <div className="row">
                                             <div className="form-group col-12">
@@ -405,8 +649,8 @@ const Cart = () => {
                                         name="discountCode" 
                                         id="discountCodeInput"
                                         className='mr-2'
-                                        value={promoCode}
-                                        onChange={e => setPromoCode(e.target.value)}/>
+                                        value={discountCode}
+                                        onChange={e => setDiscountCode(e.target.value)}/>
 
                                     <button type='button'
                                         name='discountButton'
@@ -459,7 +703,7 @@ const Cart = () => {
                                 </Col>
                                 <Col xs={12} className='pt-4'>
                                     <Elements stripe={promise}>
-                                        <CheckoutForm totalPrice={totalPrice}/>
+                                        <CheckoutForm totalPrice={totalPrice} checkoutSuccess={checkoutSuccess}/>
                                     </Elements>
                                 </Col>
                             </Row>

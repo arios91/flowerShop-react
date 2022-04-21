@@ -7,6 +7,7 @@ const useFirestore = (col) => {
   const [arrangements, setArrangements] = useState([]);
   const [addons, setAddons] = useState([]);
   const [deliveryZones, setDeliveryZones] = useState([]);
+  const [discounts, setDiscounts] = useState([]);
   const [settings, setSettings] = useState(new Map());
   const itemsPerPage = 12;
 
@@ -17,6 +18,8 @@ const useFirestore = (col) => {
       setArrangements(documents);
     }else if(col === 'deliveryZones'){
       setDeliveryZones(documents)
+    }else if(col ==='discounts'){
+      setDiscounts(documents);
     }else if(col === 'settings'){
       let tmpMap = new Map();
       documents.forEach(doc => {
@@ -37,23 +40,13 @@ const useFirestore = (col) => {
 
       const unsub = onSnapshot(q, (snap) => {
         let documents = [];
-        if(col === 'addons' || col === 'settings' || col === 'deliveryZones'){
+        if(col === 'addons' || col === 'settings' || col === 'deliveryZones' || col === 'discounts'){
           snap.forEach(doc => {
             documents.push({...doc.data(), id: doc.id});
           })
         }else if(col === 'arrangements'){
-          let counter = 0;
-          let page = [];
           snap.forEach(doc => {
             documents.push({...doc.data(), id: doc.id});
-            /* if(counter == itemsPerPage){
-              documents.push(page);
-              page = [];
-              counter =0;
-            }else{
-              page.push({...doc.data(), id: doc.id});
-              counter++
-            } */
           });
         }
         setDocs(documents, col);
@@ -64,7 +57,7 @@ const useFirestore = (col) => {
     // a component using the hook unmounts
   }, [col]);
 
-  return { arrangements, addons, deliveryZones, settings };
+  return { arrangements, addons, deliveryZones, discounts, settings };
 }
 
 export default useFirestore;
