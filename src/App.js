@@ -14,9 +14,11 @@ const App = () => {
   return (
     <ContextProvider>
       <Router>
-        <div className="App">
-          <Header/>
-          <Navbar/>
+        <div className="App d-flex flex-column justify-content-between">
+          <div>
+            <Header/>
+            <Navbar/>
+          </div>
           <Routes>
             <Route exact path="/" element={<Dashboard/>}/>
             <Route exact path="/cart" element={<Cart/>}/>

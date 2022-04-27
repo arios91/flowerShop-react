@@ -1,27 +1,27 @@
-
 import { useContext, Fragment, useState, useEffect } from 'react';
 import Currency from 'react-currency-formatter';
 import MyContext from '../Contexts/MyContext';
 import PhoneInput from 'react-phone-number-input/input'
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-
 import axios from 'axios';
 import { loadStripe } from "@stripe/stripe-js";
 import { Elements } from "@stripe/react-stripe-js";
 import CheckoutForm from './cart/CheckoutForm';
+import CartItems from './cart/CartItems';
 import {Modal, Container, Row, Col} from 'react-bootstrap';
 import flower from '../assets/flower.png'
 import { useNavigate } from 'react-router-dom';
+import {getDeliveryDateInfo, getDeliveryPersonInfo, 
+    getContactPersonInfo, getOrderInfo,
+    getAdditionalInfo,getDiscountInfo,
+    closeTable} from './cart/CartUtils.js'
 
 //TO-DO
-//- send email
 //- move axios calls to own file
-//- move html builder functions to helper file if possible
-//- finish pickup options (select date, maybe time)
 const Cart = () => {
     const taxRate = .0825;
-    const discountChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    
     const {cartItems, setCart, deliveryZones, settings, discounts, away} = useContext(MyContext);
     const promise = loadStripe('pk_test_Mqk5tVgm8NXvt81KUk3iigKo')
     const [show, setShow] = useState(false);
@@ -37,7 +37,6 @@ const Cart = () => {
     const [subTotal, setSubTotal] = useState(0);
     const [taxes, setTaxes] = useState(0);
     const [totalPrice, setTotalPrice] = useState(0);
-    const [deliveryFee, setDeliveryFee] = useState(0);
     const [deliveryZone, setDeliveryZone] = useState({price: 0});
     const [customer, setCustomer] = useState({
         firstName: '',
@@ -70,11 +69,15 @@ const Cart = () => {
             setRedirect(true);
         }
 
-
-
         if(sendToReceipt){
-            console.log('sending to receipt')
             setCart([])
+            setSendToReceipt(false);
+            axios.post('http://localhost:8080/email/sendEmail', {
+                emailBody: orderEmail,
+                subject: 'Order In',
+                toEmail: 'order_in',
+                fromEmail: 'order_in'
+            });
             navigate('/receipt', {state: {receipt}});
         }
 
@@ -99,7 +102,6 @@ const Cart = () => {
     }
 
     const checkoutSuccess = (payload) => {
-        console.log('checkoutSuccess');
         setShow(false);
 
         buildReceiptandOrderEmail(payload.paymentIntent);
@@ -117,23 +119,23 @@ const Cart = () => {
     }
 
     const buildReceiptandOrderEmail = (paymentIntent) => {
-        let receipt = getDeliveryDateInfo();
-        let orderEmail = getDeliveryDateInfo();
+        let receipt = getDeliveryDateInfo(isDelivery, deliveryDate);
+        let orderEmail = getDeliveryDateInfo(isDelivery, deliveryDate);
 
-        receipt += getDeliveryPersonInfo();
-        orderEmail += getDeliveryPersonInfo();
+        receipt += getDeliveryPersonInfo(isDelivery, recipient, deliveryAddress);
+        orderEmail += getDeliveryPersonInfo(isDelivery, recipient, deliveryAddress);
 
-        orderEmail += getContactPersonInfo();
+        orderEmail += getContactPersonInfo(customer);
         
-        receipt += getOrderInfo();
-        orderEmail += getOrderInfo();
+        receipt += getOrderInfo(cartItems);
+        orderEmail += getOrderInfo(cartItems);
         
         if(details.cardMessage !== '' || details.instructions !== ''){
-            receipt += getAdditionalInfo();
-            orderEmail += getAdditionalInfo();
+            receipt += getAdditionalInfo(details);
+            orderEmail += getAdditionalInfo(details);
         }
         
-        receipt += getDiscountInfo();
+        receipt += getDiscountInfo(totalPrice);
 
         receipt += closeTable(paymentIntent.id);
         orderEmail += closeTable(paymentIntent.id);
@@ -142,164 +144,6 @@ const Cart = () => {
         setOrderEmail(orderEmail);
     }
 
-
-    const getDeliveryDateInfo = () => {
-        console.log(deliveryDate.date)
-        let deliveryDateInfo = `
-        <table style="width: 90%;" align="center">
-        <tr>
-        <td style="width: 35%; text-align:right; font-weight: bold;">${isDelivery ? 'Delivery' : 'Pickup'} Date:</td>
-        <td style="width: 65%; text-align:left; padding-left: 25px;">${deliveryDate.getMonth() + 1}/${deliveryDate.getDate()}/${deliveryDate.getFullYear()}</td>
-        
-        </tr>`;
-
-
-        return deliveryDateInfo;
-    }
-
-    const getDeliveryPersonInfo = () => {
-        let deliveryInfo = `
-        <tr>
-            <td style="width: 35%; text-align:right; font-weight: bold;">${isDelivery ? 'Deliver To' : 'For'}:</td>
-            <td style="width: 65%; text-align:left; padding-left: 25px;">${recipient.firstName} ${recipient.lastName}</td>
-        </tr>`;
-
-        if(isDelivery){
-            deliveryInfo += `
-            <tr>
-                <td style="width: 35%; text-align:right; font-weight: bold;">Street Address:</td>
-                <td style="width: 65%; text-align:left; padding-left: 25px;">${deliveryAddress.address}</td>
-            </tr>
-            <tr>
-                <td style="width: 35%; text-align:right; font-weight: bold;">City, State, Zip:</td>
-                <td style="width: 65%; text-align:left; padding-left: 25px;">${deliveryAddress.city}, TX ${deliveryAddress.zip}</td>
-            </tr>`
-        }
-
-        deliveryInfo += `
-        <tr>
-            <td style="width: 35%; text-align:right; font-weight: bold;">Phone:</td>
-            <td style="width: 65%; text-align:left; padding-left: 25px;">${recipient.phone}</td>
-        </tr>`;
-
-        return deliveryInfo;
-    }
-
-    const getContactPersonInfo = () => {
-        let contactInfo = 
-        `<tr>
-            <td>
-                <br/>
-            </td>
-        </tr>
-        
-        <tr>
-            <td style="width: 35%; text-align:right; font-weight: bold;">Customer Name:</td>
-            <td style="width: 65%; text-align:left; padding-left: 25px;">${customer.firstName} ${customer.lastName}</td>
-        </tr>
-        <tr>
-            <td style="width: 35%; text-align:right; font-weight: bold;">Customer Phone:</td>
-            <td style="width: 65%; text-align:left; padding-left: 25px;">${customer.phone}</td>
-        </tr>
-        <tr>
-            <td style="width: 35%; text-align:right; font-weight: bold;">Customer Email:</td>
-            <td style="width: 65%; text-align:left; padding-left: 25px;">${customer.email}</td>
-        </tr>
-        
-        <tr>
-            <td>
-                <br/>
-            </td>
-        </tr>`;
-
-        return contactInfo;
-    }
-
-    const getOrderInfo = () => {
-        let orderInfo = '';
-
-        for(let product of cartItems){
-            orderInfo += `
-            <tr>
-                <td style="width: 35%; text-align:right; font-weight: bold;">Product Details:</td>
-                <td style="width: 65%; text-align:left; padding-left: 25px;">${product.name}</td>
-            </tr>`
-            for(let addon of product.productAddons){
-                orderInfo += `
-                <tr>
-                  <td style="width: 35%; text-align:right; font-weight: bold;">Addons:</td>
-                  <td style="width: 65%; text-align:left; padding-left: 25px;">${addon.name}</td>
-                </tr>`;
-              }
-        }
-
-        return orderInfo;
-    }
-
-    const getAdditionalInfo = () => {
-        let info = 
-        `<tr>
-          <td>
-            <br/>
-          </td>
-        </tr>
-        ${details.cardMessage !== '' ? `
-        <tr>
-          <td style="width: 35%; text-align:right; font-weight: bold;">Card Message:</td>
-          <td style="width: 65%; text-align:left; padding-left: 25px;">${details.cardMessage}</td>
-        </tr>`: ``}
-        ${details.instructions !== '' ? `
-        <tr>
-            <td style="width: 35%; text-align:right; font-weight: bold;">Special Instructions:</td>
-            <td style="width: 65%; text-align:left; padding-left: 25px;">${details.instructions}</td>
-        </tr>`: ``}`;
-
-        return info;
-    }
-
-    const getDiscountInfo = () => {
-        let discountCode = '';
-        let discountAmount = 0;
-
-        for (var i = 0; i < 7; i++){
-            discountCode += discountChars.charAt(Math.floor(Math.random() * discountChars.length));
-        }
-
-        if(totalPrice > 149){
-            discountAmount = 15;
-        }else if(totalPrice > 99){
-            discountAmount = 10;
-        }else if(totalPrice){
-            discountAmount = 5;
-        }
-
-        axios.post('http://localhost:8080/petalosarte/createDiscountCode', {discountCode, discountAmount});
-
-        let discountInfo = `
-        <tr>
-          <td>
-            <br/>
-          </td>
-        </tr>
-        <tr>
-          <td style="width: 35%; text-align:right; font-weight: bold;">${discountAmount}% Discount Code:</td>
-          <td style="width: 65%; text-align:left; padding-left: 25px;">${discountCode}</td>
-        </tr>`;
-
-        return discountInfo;
-    }
-    
-    const closeTable = (paymentIntent) => {
-        var cardToken = paymentIntent.substring(paymentIntent.length - 6, paymentIntent.length);
-        let info = `
-        <tr>
-        <td style="width: 35%; font-weight: bold; text-align:right;">Confirmation Code:</td>
-        <td style="width: 65%; text-align:left; padding-left: 25px;">${cardToken}</td>
-        </tr>
-        </table>`
-        return info;
-
-    }
     const handleClose = () => setShow(false);
 
     const calculateTotal = () => {
@@ -351,45 +195,45 @@ const Cart = () => {
                 }
             }
         }
-
-    }
-
-    let remove = indexToRemove => {
-        let newItems = cartItems.filter((item, index) => {
-            return index !== indexToRemove;
-        });
-        console.log(newItems);
-        setCart(newItems);
     }
 
     let submitForm = async(e) => {
         e.preventDefault();
 
-        //zip validation
-        let validZip = false;
-        for(let zone of deliveryZones){
-            if(zone.active){
-                for(let zip of zone.zips){
-                    if(zip == deliveryAddress.zip){
-                        validZip = true;
+        if(isDelivery){
+            let validZip = false;
+            for(let zone of deliveryZones){
+                if(zone.active){
+                    for(let zip of zone.zips){
+                        if(zip == deliveryAddress.zip){
+                            validZip = true;
+                        }
                     }
+                }
+                if(validZip){
+                    break;
                 }
             }
             if(validZip){
-                break;
+                setShow(true);
+            }else{
+                alert('We are currently not servicing the delivery zip code you input, thank you for your understanding.')
             }
+        }else{
+            setShow(true);
         }
 
-        if(validZip){
-            setShow(true);
-        }else{
-            alert('We are currently not servicing the delivery zip code you input, thank you for your understanding.')
-        }
     }
 
     let onDeliveryChange = e => {
         if(e.target.value === 'pickup'){
             setIsDelivery(false);
+            setDeliveryAddress({
+                address: '',
+                city: '',
+                zip: ''
+            });
+            removeDeliveryFee();
         }else{
             setIsDelivery(true);
         }
@@ -400,31 +244,25 @@ const Cart = () => {
         return day !== 0;
     }
 
-
-    const handleZipChange = e => {
-        let value = e.target.value;
-        
+    const handleZipChange = value => {
         setDeliveryAddress({...deliveryAddress, zip: value});
-        
         let result = deliveryZones.filter(zone => zone.zips.includes(value));
-        console.log(result)
         
         if(result.length > 0){
             setDeliveryZone(result[0]);
             setTotalPrice(Math.round(((subTotal + taxes + result[0].price) + Number.EPSILON) * 100) / 100)
         }else{
-            setDeliveryZone({price: 0});
-            setTotalPrice(Math.round(((subTotal + taxes) + Number.EPSILON) * 100) / 100)
+            removeDeliveryFee();
         }
     }
 
-    
+    const removeDeliveryFee = () => {
+        setDeliveryZone({price: 0});
+        setTotalPrice(Math.round(((subTotal + taxes) + Number.EPSILON) * 100) / 100);
+    }
 
-
-    const testClick = async(e) => {
-        e.preventDefault();
-        console.log(discounts);
-
+    const testClick = () => {
+        console.log('hey!');
     }
 
     return (
@@ -437,32 +275,7 @@ const Cart = () => {
             </div>
             :
             <Fragment>
-                {cartItems.map((item, index) => (
-                    <div className="row mt-3" key={item.name}>
-                        <div className="col-4 p-0">
-                            <img src={item.imageUrl} alt={item.name} className='w-130'/>
-                        </div>
-                        <div className="col-4">
-                            <h4>{item.name}</h4>
-                            {item.productAddons && item.productAddons.length > 0 ?
-                            <Fragment>
-                                <div>Along with:</div>
-                                {item.productAddons.map(addon => (
-                                    <div key={addon.name}>{addon.name}</div>
-                                ))}
-                            </Fragment> 
-                            :<Fragment/>}
-                        </div>
-                        <div className="col-4">
-                            <h4>
-                                Price: <Currency quantity={item.totalPrice} currency="USD"/>
-                            </h4>
-                        </div>
-                        <div className="col-4 p-0 mt-1">
-                            <button className="btn btn-outline-secondary w-130" onClick={e => remove(index)}>Remove</button>
-                        </div>
-                    </div>
-                ))}
+                <CartItems cartItems={cartItems}/>
 
                 <div className="mt-5">
                     <form onSubmit={submitForm}>
@@ -543,21 +356,19 @@ const Cart = () => {
                                         onChange={(value) => setRecipient({...recipient, phone: value})}
                                         placeholder="(123) 456-7890"/>
                                 </div>
-
                             </div>
-
                         </div>
                         <div className="row text-center">
                             <div className="col-12">
                                 <h4>3. Delivery Options</h4>
                             </div>
                             <div className="col-12">
-                                <label className='pr-2'>
+                                <label className='px-2'>
                                     <input type="radio" name="deliveryOption" value="delivery"
                                         onChange={(e) => onDeliveryChange(e)}
                                         checked={isDelivery}/> Delivery
                                 </label>
-                                <label className='pl-2'>
+                                <label className='px-2'>
                                     <input type="radio" name="deliveryOption" value="pickup"
                                         onChange={(e) => onDeliveryChange(e)}
                                         checked={!isDelivery}/> Pickup
@@ -565,76 +376,79 @@ const Cart = () => {
                                 {isDelivery ? 
                                     <Fragment>
                                         <span>{settings.get('deliveryDateMessage')}</span><br/>
-                                        <div className="form-group">
-                                            <label htmlFor="deliveryDate">Delivery Date</label>
-                                            <DatePicker
-                                                filterDate={isDeliveryDay}
-                                                minDate={new Date()}
-                                                selected={deliveryDate}
-                                                className='form-control'
-                                                onChange={(date) => setDeliveryDate(date)}/>
-                                        </div>
-                                        <div className="row">
-                                            <div className="form-group col-12">
-                                                <label htmlFor="address">Address</label>
-                                                <input 
-                                                    type="text" 
-                                                    className='form-control' 
-                                                    name="address" 
-                                                    id="addressInputId"
-                                                    value={deliveryAddress.address}
-                                                    onChange={(e) => setDeliveryAddress({...deliveryAddress, [e.target.name]: e.target.value})} 
-                                                    required/>
-                                            </div>
-                                            <div className="form-group col-8">
-                                                <label htmlFor="city">City</label>
-                                                <input 
-                                                    type="text" 
-                                                    name="city" 
-                                                    id="cityInput"
-                                                    className='form-control'
-                                                    value={deliveryAddress.city}
-                                                    onChange={(e) => setDeliveryAddress({...deliveryAddress, [e.target.name]: e.target.value})} 
-                                                    required/>
-                                            </div>
-                                            <div className="form-group col-4">
-                                                <label htmlFor="addrZip">ZIP</label>
-                                                <input 
-                                                    type="text" 
-                                                    name="addrZip" 
-                                                    id="zipInput"
-                                                    className='form-control'
-                                                    value={deliveryAddress.zip}
-                                                    onChange={handleZipChange}
-                                                    required/>
-                                            </div>
-                                            <div className="form-group col-12">
-                                                <label htmlFor="cardMessage">Card Message</label>
-                                                <input 
-                                                    type="text" 
-                                                    name="cardMessage" 
-                                                    className='form-control'
-                                                    value={details.cardMessage}
-                                                    onChange={(e) => setDetails({...details, [e.target.name]: e.target.value})}
-                                                    id="cardMessageInput" />
-                                            </div>
-                                            <div className="form-group col-12">
-                                                <label htmlFor="instructions">Special Instructions</label>
-                                                <input 
-                                                    type="text" 
-                                                    name="instructions"
-                                                    className='form-control'
-                                                    value={details.instructions}
-                                                    onChange={(e) => setDetails({...details, [e.target.name]: e.target.value})}
-                                                    id="specialInstructionsInput" />
-                                            </div>
-                                        </div>
                                     </Fragment>
                                     :
-                                    <div className="form-control">
-                                        <span>{settings.get('pickupMessage')}</span>
-                                    </div>
+                                    <Fragment>
+                                        <span>{settings.get('pickupMessage')}</span><br/>
+                                    </Fragment>
                                 }
+                                <div className="form-group">
+                                    <label htmlFor="deliveryDate">{isDelivery ? 'Delivery Date' : 'Pickup Date'}</label>
+                                    <DatePicker
+                                        filterDate={isDeliveryDay}
+                                        minDate={new Date()}
+                                        selected={deliveryDate}
+                                        className='form-control text-center'
+                                        onChange={(date) => setDeliveryDate(date)}/>
+                                </div>
+                                <div className="row">
+                                    {isDelivery ? 
+                                    <Fragment>
+                                        <div className="col-12 col-md-4">
+                                            <label htmlFor="address">Address</label>
+                                            <input 
+                                                type="text" 
+                                                className='form-control' 
+                                                name="address" 
+                                                id="addressInputId"
+                                                value={deliveryAddress.address}
+                                                onChange={(e) => setDeliveryAddress({...deliveryAddress, [e.target.name]: e.target.value})} 
+                                                required/>
+                                        </div>
+                                        <div className="col-6 col-md-4">
+                                            <label htmlFor="city">City</label>
+                                            <input 
+                                                type="text" 
+                                                name="city" 
+                                                id="cityInput"
+                                                className='form-control'
+                                                value={deliveryAddress.city}
+                                                onChange={(e) => setDeliveryAddress({...deliveryAddress, [e.target.name]: e.target.value})} 
+                                                required/>
+                                        </div>
+                                        <div className="col-6 col-md-4">
+                                            <label htmlFor="addrZip">ZIP</label>
+                                            <input 
+                                                type="text" 
+                                                name="addrZip" 
+                                                id="zipInput"
+                                                className='form-control'
+                                                value={deliveryAddress.zip}
+                                                onChange={(e) => handleZipChange(e.target.value)}
+                                                required/>
+                                        </div>
+                                    </Fragment> : <Fragment></Fragment>}
+                                    <div className="form-group col-12">
+                                        <label htmlFor="cardMessage">Card Message</label>
+                                        <input 
+                                            type="text" 
+                                            name="cardMessage" 
+                                            className='form-control'
+                                            value={details.cardMessage}
+                                            onChange={(e) => setDetails({...details, [e.target.name]: e.target.value})}
+                                            id="cardMessageInput" />
+                                    </div>
+                                    <div className="form-group col-12">
+                                        <label htmlFor="instructions">Special Instructions</label>
+                                        <input 
+                                            type="text" 
+                                            name="instructions"
+                                            className='form-control'
+                                            value={details.instructions}
+                                            onChange={(e) => setDetails({...details, [e.target.name]: e.target.value})}
+                                            id="specialInstructionsInput" />
+                                    </div>
+                                </div>
                             </div>
 
                         </div>
@@ -644,11 +458,11 @@ const Cart = () => {
                             </div>
                             <div className="col-12 formContainer">
                                 <div className="col-12 form-group">
-                                    <label htmlFor="discountCode" className='mr-2'>Promo Code</label>
+                                    <label htmlFor="discountCode">Promo Code</label>
                                     <input type="text" 
                                         name="discountCode" 
                                         id="discountCodeInput"
-                                        className='mr-2'
+                                        className='mx-2'
                                         value={discountCode}
                                         onChange={e => setDiscountCode(e.target.value)}/>
 
@@ -674,7 +488,7 @@ const Cart = () => {
                                 </div>
                             </div>
                         </div>
-                        <input type="submit" value="Submit" className='btn btn-primary w-100 mt-2 mb-2'/>
+                        <input type="submit" value="Check Out" className='btn btn-primary w-100 mt-2 mb-2'/>
                     </form>
                 </div>
                 <Modal show={show} onHide={handleClose} centered className='paymentModal mainModal text-center'>
