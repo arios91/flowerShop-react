@@ -22,6 +22,7 @@ const Cart = () => {
     const {cartItems, setCart, deliveryZones, settings, discounts, away} = useContext(MyContext);
     const promise = loadStripe(settings.get('stripePublicKey'))
     const apiPath = settings.get('apiPath');
+    console.log(apiPath);
     const [show, setShow] = useState(false);
     const navigate = useNavigate();
 
