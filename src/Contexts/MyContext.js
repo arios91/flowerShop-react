@@ -7,7 +7,6 @@ import contextReducer from "./ContextReducer";
 const MyContext = createContext();
 
 export const ContextProvider = ({children}) => {
-    /* console.log('context') */
     const {arrangements} = useFirestore('arrangements');
     const {addons} = useFirestore('addons')
     const {settings} = useFirestore('settings');
@@ -78,9 +77,7 @@ export const ContextProvider = ({children}) => {
 
 
     const handleArrangementSelect = arrangement => {
-        console.log(arrangement);
         if(arrangement.addonNames && arrangement.addonNames.length > 0){
-            console.log(arrangement.addonNames);
             let tmpAddons = addons.filter(addon => arrangement.addonNames.includes(addon.name));
             tmpAddons = tmpAddons.map(addon => {
                 return {...addon, inCart: false}

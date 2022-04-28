@@ -7,7 +7,7 @@ import {
     useElements
   } from "@stripe/react-stripe-js";
 
-function CheckoutForm({totalPrice, checkoutSuccess}) {
+function CheckoutForm({totalPrice, checkoutSuccess, apiPath}) {
     const [succeeded, setSucceeded] = useState(false);
     const [error, setError] = useState(null);
     const [processing, setProcessing] = useState('');
@@ -20,7 +20,7 @@ function CheckoutForm({totalPrice, checkoutSuccess}) {
       console.log(JSON.stringify({totalPrice}))
       console.log(typeof(totalPrice));
         window
-            .fetch('http://localhost:8080/petalosarte/charge', {
+            .fetch(`${apiPath}/petalosarte/charge`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -31,13 +31,9 @@ function CheckoutForm({totalPrice, checkoutSuccess}) {
               console.log(err);
             })
             .then(res => {
-                console.log('step 1');
-                console.log(res.json);
                 return res.json();
             })
             .then(data => {
-                console.log('step 2');
-                console.log(data);
                 setClientSecret(data.clientSecret)
             })
     }, []);
@@ -70,7 +66,6 @@ function CheckoutForm({totalPrice, checkoutSuccess}) {
 
       const handleSubmit = async ev => {
         ev.preventDefault();
-        console.log('handling payment');
         setProcessing(true);
     
         const payload = await stripe.confirmCardPayment(clientSecret, {
@@ -86,7 +81,6 @@ function CheckoutForm({totalPrice, checkoutSuccess}) {
           setError(`Payment failed test`);
           setProcessing(false);
         } else {
-            console.log('success');
           setError(null);
           setProcessing(false);
           setSucceeded(true);
@@ -130,7 +124,8 @@ function CheckoutForm({totalPrice, checkoutSuccess}) {
 
 CheckoutForm.propTypes = {
     totalPrice: PropTypes.number,
-    checkoutSuccess: PropTypes.func
+    checkoutSuccess: PropTypes.func,
+    apiPath: PropTypes.string
 }
 
 export default CheckoutForm

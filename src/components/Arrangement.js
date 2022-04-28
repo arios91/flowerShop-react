@@ -9,7 +9,7 @@ import Currency from 'react-currency-formatter';
 const Arrangement = ({arrangement}) => {
     const {handleArrangementSelect} = useContext(MyContext)
 
-    let onTestClick = e => {
+    let viewArrangement = e => {
         handleArrangementSelect(arrangement);
     }
     
@@ -19,7 +19,7 @@ const Arrangement = ({arrangement}) => {
             <div className="card-body text-center">
                 <p className="arrangementTitle mb-0">{arrangement.name}</p>
                 <p className="arrangementPrice mb-2"><Currency quantity={arrangement.price} currency="USD"/></p>
-                <Link className="btn btn-sm btn-outline-secondary viewButton" to="/viewProduct" onClick={(e => {onTestClick(e)})}>View</Link>
+                <Link className="btn btn-sm btn-outline-secondary viewButton" to="/viewProduct" onClick={(e => {viewArrangement(e)})}>View</Link>
             </div>
         </div>
     )

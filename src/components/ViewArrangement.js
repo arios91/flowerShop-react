@@ -16,8 +16,6 @@ const ViewArrangement = () => {
 
     let [isModalOpen, setModalOpen] = useState(false);
 
-    
-
     useEffect(() => {
         if(!currentArrangement.name){
             setRedirect(true);
@@ -67,7 +65,7 @@ const ViewArrangement = () => {
             transform: 'translate(-50%, -50%)',
             overflow: 'none',
             borderRadius: '10px',
-            minWidth: '40%',
+            minWidth: '25%',
             padding: '0'
           },
     }
@@ -141,9 +139,9 @@ const ViewArrangement = () => {
                 isOpen={isModalOpen}
                 style={modalStyle}>
                 <div className="container text-center p-0">
-                    <div className="row my-2 text-center text-md-start">
-                        <div className="col-12 mx-0 mx-md-3">
-                            Successfully Added to Cart!
+                    <div className="row my-2 text-center">
+                        <div className="col-12 mx-0">
+                            <h6>Successfully Added to Cart!</h6>
                         </div>
                     </div>
                     <hr></hr>

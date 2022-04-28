@@ -1,6 +1,29 @@
 import axios from 'axios';
-
 const discountChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+
+export function buildReceipt(isDelivery, deliveryDate, recipient, deliveryAddress, cartItems, details, totalPrice, paymentId, apiPath){
+    let receipt = getDeliveryDateInfo(isDelivery, deliveryDate);
+    receipt += getDeliveryPersonInfo(isDelivery, recipient, deliveryAddress);
+    receipt += getOrderInfo(cartItems)
+    if(details.cardMessage !== '' || details.instructions !== ''){
+        receipt += getAdditionalInfo(details);
+    }
+    receipt += getDiscountInfo(totalPrice, apiPath);
+    receipt += closeTable(paymentId);
+    return receipt;
+}
+
+export function buildOrderEmail(isDelivery, deliveryDate, recipient, deliveryAddress, customer, cartItems, details, totalPrice, paymentId){
+    let orderEmail = getDeliveryDateInfo(isDelivery, deliveryDate);
+    orderEmail += getDeliveryPersonInfo(isDelivery, recipient, deliveryAddress);
+    orderEmail += getContactPersonInfo(customer);
+    orderEmail += getOrderInfo(cartItems)
+    if(details.cardMessage !== '' || details.instructions !== ''){
+        orderEmail += getAdditionalInfo(details);
+    }
+    orderEmail += closeTable(paymentId);
+    return orderEmail;
+}
 
 export function getDeliveryDateInfo(isDelivery, deliveryDate){
     let deliveryDateInfo = `
@@ -114,7 +137,7 @@ export function getAdditionalInfo(details){
     return info;
 }
 
-export function getDiscountInfo(totalPrice){
+export function getDiscountInfo(totalPrice, apiPath){
     let discountCode = '';
     let discountAmount = 0;
 
@@ -130,7 +153,7 @@ export function getDiscountInfo(totalPrice){
         discountAmount = 5;
     }
 
-    axios.post('http://localhost:8080/petalosarte/createDiscountCode', {discountCode, discountAmount});
+    axios.post(`${apiPath}/petalosarte/createDiscountCode`, {discountCode, discountAmount});
 
     let discountInfo = `
     <tr>

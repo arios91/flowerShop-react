@@ -1,18 +1,4 @@
-import {Link} from 'react-router-dom'
-import {useContext} from 'react';
-import MyContext from '../Contexts/MyContext';
-
 const Header = () => {
-    const {away} = useContext(MyContext);
-    /*
-    state = {
-        setNavbarOpaque: false
-    }
-
-    changeNavClass = (inIntro) => {
-        this.setState({setNavbarOpaque: !inIntro});
-    }
-    */
     return (
         <div id="header"  className="container text-center">
             <div className="row headerRow">
