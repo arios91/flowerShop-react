@@ -4,7 +4,7 @@ const discountChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz01234
 export function buildReceipt(isDelivery, deliveryDate, recipient, deliveryAddress, cartItems, details, totalPrice, paymentId, apiPath){
     let receipt = getDeliveryDateInfo(isDelivery, deliveryDate);
     receipt += getDeliveryPersonInfo(isDelivery, recipient, deliveryAddress);
-    receipt += getOrderInfo(cartItems)
+    receipt += getOrderInfo(cartItems, totalPrice)
     if(details.cardMessage !== '' || details.instructions !== ''){
         receipt += getAdditionalInfo(details);
     }
@@ -95,7 +95,7 @@ export function getContactPersonInfo(customer){
 
     return contactInfo;
 }
-export function getOrderInfo(cartItems){
+export function getOrderInfo(cartItems, totalPrice){
     let orderInfo = '';
 
     for(let product of cartItems){
@@ -112,6 +112,12 @@ export function getOrderInfo(cartItems){
             </tr>`;
             }
     }
+
+    orderInfo += `
+    <tr>
+    <td style="width: 35%; text-align:right; font-weight: bold;">Total Price:</td>
+    <td style="width: 65%; text-align:left; padding-left: 25px;">$${totalPrice}</td>
+    </tr>`
 
     return orderInfo;
 
