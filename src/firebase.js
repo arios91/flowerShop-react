@@ -1,5 +1,5 @@
 import {initializeApp} from 'firebase/app';
-import { getFirestore} from 'firebase/firestore';
+import {getFirestore} from 'firebase/firestore';
 const { initializeAppCheck, ReCaptchaV3Provider } = require("firebase/app-check");
 
 
@@ -23,6 +23,7 @@ const firebaseConfig = {
     isTokenAutoRefreshEnabled: true
   });
 
+ 
 
   const projectFirestore = getFirestore(firebase);
 
