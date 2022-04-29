@@ -80,7 +80,7 @@ const Dashboard = () => {
         console.log('click')
         let discountCode = 'test';
         let discountAmount = 0;
-        axios.post(`https://alex-rios-api.com/petalosarte/createDiscountCode`, {discountCode, discountAmount});
+        axios.post(`https://www.alex-rios-api.com/petalosarte/createDiscountCode`, {discountCode, discountAmount});
     }
 
     return isLoading ? <div>Loading</div> :
