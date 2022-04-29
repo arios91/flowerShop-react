@@ -151,7 +151,7 @@ const ViewArrangement = () => {
                                 to='/'>
                                 Continue Shopping
                             </Link>
-                            <Link className="btn btn-primary mx-2" 
+                            <Link className={"btn btn-primary mx-2" + (away ? ' disabled' : '')}
                                 to='/cart'>
                                 Go To Cart
                             </Link>

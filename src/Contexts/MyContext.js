@@ -21,6 +21,8 @@ export const ContextProvider = ({children}) => {
         currentAddons: [],
         awayMessage: '',
         away: false,
+        noticeMessage: '',
+        notice: false,
         isLoading: true
     }
 
@@ -37,6 +39,10 @@ export const ContextProvider = ({children}) => {
                 type: 'SET_AWAY_MESSAGE',
                 payload: settings.get('awayMessage')
             })
+            dispatch({
+                type: 'SET_NOTICE_MESSAGE',
+                payload: settings.get('noticeMessage')
+            })
 
             let beginDate = new Date(0);
             beginDate.setUTCSeconds(settings.get('beginAwayDate').seconds);
@@ -44,25 +50,29 @@ export const ContextProvider = ({children}) => {
             let endDate = new Date(0);
             endDate.setUTCSeconds(settings.get('endAwayDate').seconds);
 
+
+            let noticeBeginDate = new Date(0);
+            noticeBeginDate.setUTCSeconds(settings.get('beginNoticeDate').seconds);
+
+            let noticeEndDate = new Date(0);
+            noticeEndDate.setUTCSeconds(settings.get('endNoticeDate').seconds);
+
             
             let currentDate = new Date();
+            let awayBool = false;
             if(currentDate >= beginDate && currentDate <= endDate){
-                dispatch({
-                    type: 'SET_AWAY',
-                    payload: true
-                })
-            }else{
-                dispatch({
-                    type: 'SET_AWAY',
-                    payload: false
-                })
+                awayBool = true;
             }
+            dispatch({type: 'SET_AWAY', payload: awayBool})
+
+            let noticeBool = false;
+            if(currentDate >= noticeBeginDate && currentDate <= noticeEndDate){
+                noticeBool = true;
+            }
+            dispatch({type: 'SET_NOTICE', payload: noticeBool})
             
 
-            dispatch({
-                type: 'SET_LOADING',
-                payload: false
-            })
+            dispatch({type: 'SET_LOADING', payload: false})
         }
     }, [settings, arrangements, addons, deliveryZones, discounts])
 

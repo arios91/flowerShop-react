@@ -16,7 +16,7 @@ const Dashboard = () => {
     ];
     const [currentSort, setCurrentSort] = useState(sortList[0].name);
     const [arrangementPages, setArrangementPages] = useState([])
-    const {arrangements, currentPage, handlePageNavigation, isLoading, away, awayMessage} = useContext(MyContext);
+    const {arrangements, currentPage, handlePageNavigation, isLoading, away, awayMessage, notice, noticeMessage} = useContext(MyContext);
 
     useEffect(() => {
         handleSort();
@@ -79,9 +79,16 @@ const Dashboard = () => {
         <div id="dash"  className="container">
             {!arrangementPages || arrangementPages.length == 0 ? <Loading></Loading>:
             <div className="row">
-                <div className="col-12 text-center">
-                    {away && awayMessage}
-                </div>
+                {away &&
+                    <div className="col-12 text-center mb-4 awayMessage">
+                        <h4>{awayMessage}</h4>
+                    </div>
+                }
+                {notice && 
+                    <div className="col-12 text-center mb-4 noticeMessage">
+                        <h6>{noticeMessage}</h6>
+                    </div> 
+                }
                 <div className="col-12">
                     <img className="mainImage" src="https://images.pexels.com/photos/428611/bouquet-roses-colorful-floral-428611.jpeg?w=1260&h=750&auto=compress&cs=tinysrgb" alt="" />
                 </div>

@@ -5,10 +5,20 @@ const contextReducer = (state, action) => {
                 ...state,
                 awayMessage: action.payload
             }
+        case 'SET_NOTICE_MESSAGE':
+            return {
+                ...state,
+                noticeMessage: action.payload
+            }
         case 'SET_AWAY':
             return{
                 ...state,
                 away: action.payload
+            }
+        case 'SET_NOTICE':
+            return{
+                ...state,
+                notice: action.payload
             }
         case 'SET_CURRENT_PAGE':
             return{

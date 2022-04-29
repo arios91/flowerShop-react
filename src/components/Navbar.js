@@ -1,6 +1,9 @@
 import {Link} from 'react-router-dom'
+import {useContext} from 'react';
+import MyContext from '../Contexts/MyContext';
 
 const Navbar = () => {
+    const {away} = useContext(MyContext);
     return (
         <div className="container mb-3 headerRow">
             <nav className="navbar navbar-expand-sm navbar-light">
@@ -14,7 +17,7 @@ const Navbar = () => {
                             <Link to='/' className='nav-item nav-link w-50 text-center'>
                                 <h5 className="headerLinkText">Home</h5>
                             </Link>
-                            <Link to='/cart' className='nav-item nav-link w-50 text-center'>
+                            <Link to='/cart' className={'nav-item nav-link w-50 text-center' + (away ? ' disabled' : '')}>
                                 <h5 className="headerLinkText">Cart</h5>
                             </Link>
                         </div>
