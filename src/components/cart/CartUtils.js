@@ -17,7 +17,7 @@ export function buildOrderEmail(isDelivery, deliveryDate, recipient, deliveryAdd
     let orderEmail = getDeliveryDateInfo(isDelivery, deliveryDate);
     orderEmail += getDeliveryPersonInfo(isDelivery, recipient, deliveryAddress);
     orderEmail += getContactPersonInfo(customer);
-    orderEmail += getOrderInfo(cartItems)
+    orderEmail += getOrderInfo(cartItems, totalPrice)
     if(details.cardMessage !== '' || details.instructions !== ''){
         orderEmail += getAdditionalInfo(details);
     }

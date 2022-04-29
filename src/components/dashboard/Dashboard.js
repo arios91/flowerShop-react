@@ -76,18 +76,10 @@ const Dashboard = () => {
         </li>
     ));
 
-    let testClick = e => {
-        console.log('click')
-        let discountCode = 'test';
-        let discountAmount = 0;
-        axios.post(`https://www.alex-rios-api.com/petalosarte/createDiscountCode`, {discountCode, discountAmount});
-    }
-
     return isLoading ? <div>Loading</div> :
         <div id="dash"  className="container">
             {!arrangementPages || arrangementPages.length == 0 ? <Loading></Loading>:
             <div className="row">
-                <button onClick={e => testClick()}>Click</button>
                 {away &&
                     <div className="col-12 text-center mb-4 awayMessage">
                         <h4>{awayMessage}</h4>
